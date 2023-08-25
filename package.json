@@ -1,0 +1,17 @@
+{
+  "name": "@victor/ubereats",
+  "version": "1",
+  "description": "ubereats food delivery application mock",
+  "main": "index.js",
+  "author": "Victor Onofiok",
+  "license": "MIT",
+  "scripts": {
+    "build": "turbo run build"
+  },
+  "private": true,
+  "workspaces": [
+    "docs",
+    "apps/*",
+    "packages/*"
+  ]
+}

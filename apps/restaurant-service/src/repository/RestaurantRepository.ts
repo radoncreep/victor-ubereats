@@ -1,0 +1,8 @@
+
+
+class RestaurantRepository {
+
+    constructor() {
+        
+    }
+}
