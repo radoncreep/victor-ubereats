@@ -11,7 +11,8 @@ export function validationPipe(req: Request, res: Response, next: NextFunction) 
         cuisines: true,
         address: true,
         location: true,
-        opening_hours: true
+        // opening_hours: true,
+        image: true
     });
 
     try {

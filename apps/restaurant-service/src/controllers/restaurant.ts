@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import { eq } from "drizzle-orm";
 
-import { User, user } from "../schema/user";
 import { db } from "..";
 import { RestaurantSchema, restaurant } from "../schema/restaurant";
 
@@ -26,6 +25,9 @@ class RestaurantController {
     }
 
     async create(req: Request, res: Response) {
+        // validation 
+        // save to database -> handle db error
+        // send create restaurant event 
         return res.json({ success: true, payload: null })
     }
 

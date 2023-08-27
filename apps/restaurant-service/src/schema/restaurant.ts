@@ -3,6 +3,7 @@ import { RestaurantAddress, RestaurantLocation, Cusine, OpeningHours } from "../
 import { z } from "zod";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 
+
 export const restaurant = pgTable("restaurant", {
   id: uuid("id").primaryKey().notNull().defaultRandom(),
   name: text("name").notNull(),
@@ -13,7 +14,7 @@ export const restaurant = pgTable("restaurant", {
   cuisines: json("cusines").default([]).$type<Cusine[]>(),
   opening_hours: json("opening_hours").default({ monday: { open: "9:00", close: "18:00"}}).$type<OpeningHours>(),
   rating: integer("rating").default(0),
-//   user_id: 
+  image: text("image").notNull(), 
   createdAt: timestamp("created_at"),
   updatedAt: timestamp("updated_at"),
 });
@@ -58,5 +59,6 @@ export const insertRestaurantSchema = createInsertSchema(restaurant, {
   opening_hours: z.object({
     open: zodTimeTransformer,
     close: zodTimeTransformer
-  })
+  }),
+  image: (schema) => schema.image._addCheck({ kind: "url" })
 });
