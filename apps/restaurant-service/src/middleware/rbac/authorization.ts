@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 import { verify } from "jsonwebtoken";
 
-import { User } from "../types";
+import { User } from "../../types";
 
 
 export function authorizeRole(req: Request, res: Response, next: NextFunction) {
