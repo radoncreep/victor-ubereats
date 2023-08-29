@@ -8,6 +8,8 @@ const router = Router();
 
 router.get("/:restaurantId");
 
+router.get("", restaurantController.getMany);
+
 router.post(
     "",
     // authorizeRole, 

@@ -1,18 +1,11 @@
 import { NextFunction, Request, Response } from "express";
-import { and, eq, exists, Relation } from "drizzle-orm";
+import { and, eq, exists, Relation, sql } from "drizzle-orm";
 import { v4 as uuid4 } from "uuid";
 
 import { RestaurantSchema, restaurant } from "../schema/restaurant";
 import { db } from "../config/database";
 import { isEmpty } from "../utils/helper";
 
-
-
-// interface ImageUploadService {
-//     post(file: File): Promise<{url: string}>;
-//     update(uri: string): Promise<{url: string}>;
-//     delete(uri: string): Promise<{url: string}>;
-// }
 
 class RestaurantController {
 
@@ -29,8 +22,37 @@ class RestaurantController {
         return res.json({ success: true, payload: data });
     }
 
-    async getAll(req: Request, res: Response, next: NextFunction) {
-        return await db.select().from(restaurant);
+    async getMany(req: Request, res: Response, next: NextFunction) {
+        const limit = parseInt(req.query.limit as string) || 1;
+        const page = parseInt(req.query.page as string) || 10;
+
+        const offset = (page - 1) * limit;
+
+        try {
+            const restaurantCount = await db
+                .select({ count: sql<number>`count(*)` })
+                .from(restaurant);
+
+            const totalRestaurants = restaurantCount[0].count;
+
+            const paginatedRestaurants = await db.select()
+                .from(restaurant)
+                .limit(limit)
+                .offset(offset)
+    
+            return res.status(200).json({
+                success: true,
+                payload: {
+                    restaurants: paginatedRestaurants,
+                    current: page,
+                    totalPages: Math.ceil(totalRestaurants / limit),
+                    totalRestaurants
+                }
+            })
+        } catch (error) {
+            next(error);
+            return;
+        }
     }
 
     async create(req: Request, res: Response, next: NextFunction) {        
@@ -61,6 +83,10 @@ class RestaurantController {
                 .returning({ id: restaurant.id });
 
             // event for created restaurant event or pubsub
+            // this can serve as duplicating the restaurant db on the users 
+            // to keep of user's favourite restaurants or the other way around
+            // the other way around so the user service doesnt have duplicates of all entity it references
+            // and each service (if related) can have a duplicate of user instead
             return res.status(201).send({success: true, payload: data});
         } catch (error) {
             next(error);
