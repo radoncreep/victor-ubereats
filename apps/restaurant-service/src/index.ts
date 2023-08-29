@@ -1,14 +1,26 @@
 import dotenv from "dotenv";
+import { dbClient } from "./config/database";
+import { app } from "./app";
+import { drizzle } from "drizzle-orm/node-postgres";
+import { migrate } from "drizzle-orm/postgres-js/migrator";
 dotenv.config();
 
-import { initializeDatabase } from "./config/database";
-import { initializeServer } from "./app";
 
-export const db = initializeDatabase();
-const app = initializeServer();
 
 const PORT = process.env.PORT || 1018;
 
-app.listen(PORT, async () => {
-    console.log(`${process.env.SERVICE_NAME} running on ${PORT}`);
-});
+(async () => {
+    try {
+        await dbClient.connect();
+        console.log("Database Connected.");
+    
+        await migrate(drizzle(dbClient), { migrationsFolder: "migrations"});
+        console.log("Migration Successful.");
+     
+        app.listen(PORT, () => {
+            console.log(`${process.env.SERVICE_NAME} running on ${PORT}`);
+        });
+    } catch (error) {
+        console.log(`SERVER INIT ERROR: ${error}`);
+    }
+})(); 

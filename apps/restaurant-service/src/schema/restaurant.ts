@@ -31,7 +31,6 @@ const zodTimeTransformer = z.custom((value) => {
   const timeRegex = /^(?:[01]\d|2[0-3]):[0-5]\d$/; 
   console.log({ value }, timeRegex.test(value))
   if (!timeRegex.test(value)) {
-    console.log("regex failed")
     throw new Error("Invalid 24-hour time format");
   }
 
@@ -57,8 +56,10 @@ export const insertRestaurantSchema = createInsertSchema(restaurant, {
   phone: (schema) => schema.phone.min(10).max(11),
   cuisines: z.array(z.enum(["african", "nigerian", "italian"])),
   opening_hours: z.object({
-    open: zodTimeTransformer,
-    close: zodTimeTransformer
-  }),
-  image: (schema) => schema.image._addCheck({ kind: "url" })
+    open: zodTimeTransformer.catch((ctx: any) => {
+      console.log({ ctx })
+    }),
+    // close: zodTimeTransformer
+  })
+  // image: (schema) => schema.image.
 });
