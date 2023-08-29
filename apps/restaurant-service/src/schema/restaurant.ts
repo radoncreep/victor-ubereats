@@ -6,11 +6,11 @@ import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 
 export const restaurant = pgTable("restaurant", {
   id: uuid("id").primaryKey().notNull().defaultRandom(),
-  name: text("name").notNull(),
+  name: text("name").notNull().unique(),
   description: text("description").notNull(),
   address: json("address").notNull().$type<RestaurantAddress>(),
   location: json("location").default({ location: 0.0, longitude: 0.0 }).$type<RestaurantLocation>(),
-  phone: text("phone").notNull(),
+  phone: text("phone").notNull().unique(),
   cuisines: json("cusines").default([]).$type<Cusine[]>(),
   opening_hours: json("opening_hours").default({ monday: { open: "9:00", close: "18:00"}}).$type<OpeningHours>(),
   rating: integer("rating").default(0),
@@ -29,7 +29,7 @@ const cusines = ["african", "nigerian", "italian"];
 const zodTimeTransformer = z.custom((value) => {
   if (typeof value !== "string") throw new Error("invalid type");
   const timeRegex = /^(?:[01]\d|2[0-3]):[0-5]\d$/; 
-  console.log({ value }, timeRegex.test(value))
+  
   if (!timeRegex.test(value)) {
     throw new Error("Invalid 24-hour time format");
   }
@@ -56,10 +56,8 @@ export const insertRestaurantSchema = createInsertSchema(restaurant, {
   phone: (schema) => schema.phone.min(10).max(11),
   cuisines: z.array(z.enum(["african", "nigerian", "italian"])),
   opening_hours: z.object({
-    open: zodTimeTransformer.catch((ctx: any) => {
-      console.log({ ctx })
-    }),
-    // close: zodTimeTransformer
+    open: z.string(),
+    close: z.string()
   })
   // image: (schema) => schema.image.
 });

@@ -1,9 +1,10 @@
-import { Request, Response } from "express";
-import { eq, Relation } from "drizzle-orm";
+import { NextFunction, Request, Response } from "express";
+import { and, eq, exists, Relation } from "drizzle-orm";
 import { v4 as uuid4 } from "uuid";
 
 import { RestaurantSchema, restaurant } from "../schema/restaurant";
 import { db } from "../config/database";
+import { isEmpty } from "../utils/helper";
 
 
 
@@ -28,24 +29,41 @@ class RestaurantController {
         return res.json({ success: true, payload: data });
     }
 
-    async getAll(req: Request, res: Response) {
+    async getAll(req: Request, res: Response, next: NextFunction) {
         return await db.select().from(restaurant);
     }
 
-    async create(req: Request, res: Response) {        
+    async create(req: Request, res: Response, next: NextFunction) {        
         const payload = req.body;
-        console.log({ payload })
 
-        try {     
+        const nameExists = await db.select()
+            .from(restaurant)
+            .where(
+                and(
+                    eq(restaurant.name, payload.name), 
+                    eq(restaurant.phone, payload.phone)
+                )
+            );
+
+        if (!isEmpty(nameExists)) {
+            const error = new Error();
+            error.message = "restaurant name already exists.";
+            next(error);
+            return;
+        }
+
+        try { 
+            // upload image from request to a cdn or bucket - ImageUploadService
+
             const data = await db
                 .insert(restaurant)
                 .values({...payload, id: uuid4()})
                 .returning({ id: restaurant.id });
 
-            // event for created restaurant
-            return res.status(201).send(data);
+            // event for created restaurant event or pubsub
+            return res.status(201).send({success: true, payload: data});
         } catch (error) {
-            console.log(`DB Error: ${error}`)
+            next(error);
         }
     }
 

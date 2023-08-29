@@ -1,18 +1,59 @@
 {
   "version": "5",
   "dialect": "pg",
-  "id": "6db493c1-6d49-43aa-ba23-5c3b07aa67fa",
-  "prevId": "a4cd2ec8-d114-451c-aaa8-832a3924dcf4",
+  "id": "11918083-49c9-453f-ad51-ef2f186c7ca9",
+  "prevId": "30c1263b-e110-4dbb-9481-cbffa36c76ad",
   "tables": {
+    "menuitems": {
+      "name": "menuitems",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "price": {
+          "name": "price",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "image_url": {
+          "name": "image_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
     "restaurant": {
       "name": "restaurant",
       "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "uuid",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "default": "gen_random_uuid()"
         },
         "name": {
           "name": "name",
@@ -30,8 +71,7 @@
           "name": "address",
           "type": "json",
           "primaryKey": false,
-          "notNull": false,
-          "default": "'{\"streetName\":\"\",\"number\":\"\",\"postalCode\":\"\"}'::json"
+          "notNull": true
         },
         "location": {
           "name": "location",
@@ -67,55 +107,9 @@
           "notNull": false,
           "default": 0
         },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "user": {
-      "name": "user",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "name": {
-          "name": "name",
+        "image": {
+          "name": "image",
           "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "email": {
-          "name": "email",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "password": {
-          "name": "password",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "role": {
-          "name": "role",
-          "type": "role",
           "primaryKey": false,
           "notNull": true
         },
@@ -136,26 +130,24 @@
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "user_email_unique": {
-          "name": "user_email_unique",
+        "restaurant_name_unique": {
+          "name": "restaurant_name_unique",
           "nullsNotDistinct": false,
           "columns": [
-            "email"
+            "name"
+          ]
+        },
+        "restaurant_phone_unique": {
+          "name": "restaurant_phone_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "phone"
           ]
         }
       }
     }
   },
-  "enums": {
-    "role": {
-      "name": "role",
-      "values": {
-        "customer": "customer",
-        "rider": "rider",
-        "vendor": "vendor"
-      }
-    }
-  },
+  "enums": {},
   "schemas": {},
   "_meta": {
     "schemas": {},

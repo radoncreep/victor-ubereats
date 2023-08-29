@@ -23,9 +23,9 @@ export function validationPipe(req: Request, res: Response, next: NextFunction) 
         } catch (error) {
             if (error instanceof ZodError) {
                 next(error);
+                return;
             }
         }
-        
         next();
     } catch (error) {
         console.log(`Parser Error: ${error}`);
