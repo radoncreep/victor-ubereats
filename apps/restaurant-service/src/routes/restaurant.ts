@@ -18,7 +18,7 @@ router.post(
 );
 
 router.put(
-    "", 
+    "/:id", 
     // authorizeRole, 
     validationPipe,
     restaurantController.update

@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { and, eq, exists, Relation, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { v4 as uuid4 } from "uuid";
 
 import { RestaurantSchema, restaurant } from "../schema/restaurant";
@@ -98,36 +98,35 @@ class RestaurantController {
     }
 
     async update(req: Request, res: Response, next: NextFunction) {
+        const { id: restaurantId } = req.params;
         const payload = req.body;
 
         try {
-            const nameExists = await db.select()
+            const existingId = await db.select()
                 .from(restaurant)
-                .where(eq(restaurant.name, payload.name)
+                .where(eq(restaurant.id, restaurantId)
             );
 
-            if (isEmpty(nameExists)) {
+            if (isEmpty(existingId)) {
                 const error = new Error();
-                error.message = "Invalid payload";
+                error.message = "Invalid Payload.";
                 next(error);
                 return;
             }
-            console.log({ name: restaurant.name })
 
             const updatedRestuarant = await db.update(restaurant)
                 .set({ 
                     address: payload.address, 
                     phone: payload.phone,
                     location: payload.location,
-                    cuisines: payload.cuisines
+                    cuisines: payload.cuisines,
+                    name: payload.name
                 })
-                .where(eq(restaurant.name, "chefVictors"))
+                .where(eq(restaurant.id, restaurantId))
                 .returning();
-            console.log({ updatedRestuarant })
             
             return res.status(201).json({ success: true, payload: updatedRestuarant })
         } catch (error) {
-            // console.log({ error })
             return next(error);
         }
     }
