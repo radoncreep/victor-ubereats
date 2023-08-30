@@ -1,12 +1,12 @@
 import { Router } from "express";
 
 import { restaurantController } from "../controllers/restaurant";
-import { validationPipe } from "../middleware/validations/pipes";
+import { validateUUID, validationPipe } from "../middleware/validations/pipes";
 import { authorizeRole } from "../middleware/rbac/authorization";
 
 const router = Router();
 
-router.get("/:restaurantId");
+router.get("/:id", validateUUID, restaurantController.getById);
 
 router.get("", restaurantController.getMany);
 
@@ -17,8 +17,8 @@ router.post(
     restaurantController.create
 );
 
-router.put("");
+router.put("", restaurantController.update);
 
-router.delete("/:restaurantId");
+router.delete("/:id", validateUUID, restaurantController.delete);
 
 export default router;

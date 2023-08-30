@@ -11,15 +11,19 @@ class RestaurantController {
 
     constructor() {}
 
-    async getById(req: Request, res: Response): Promise<Response<RestaurantSchema>> {
-        const { restaurantId } = req.params;
+    async getById(req: Request, res: Response, next: NextFunction): Promise<Response<RestaurantSchema> | void> {
+        const { id: restaurantId } = req.params;
 
-        const data = await db
-            .select()
-            .from(restaurant)
-            .where(eq(restaurant.id, restaurantId));
-
-        return res.json({ success: true, payload: data });
+       try {
+           const data = await db
+               .select()
+               .from(restaurant)
+               .where(eq(restaurant.id, restaurantId));
+    
+           return res.json({ success: true, payload: data });
+       } catch (error) {
+            return next(error)
+       }
     }
 
     async getMany(req: Request, res: Response, next: NextFunction) {
@@ -109,11 +113,11 @@ class RestaurantController {
     }
 
     async delete(req: Request, res: Response) {
-        const payload: RestaurantSchema = req.body;
+        const {id: restaurantId} = req.params;
 
         try {
-            const updatedUserId = await db.delete(restaurant)
-                .where(eq(restaurant.id, payload.id))
+            await db.delete(restaurant)
+                .where(eq(restaurant.id, restaurantId))
             
             return res.status(200).json({ success: true, payload: null }); 
         } catch (error) {
