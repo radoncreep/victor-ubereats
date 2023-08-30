@@ -14,7 +14,7 @@ class RestaurantController {
     async getById(req: Request, res: Response, next: NextFunction): Promise<Response<RestaurantSchema> | void> {
         const { id: restaurantId } = req.params;
 
-       try {
+        try {
            const data = await db
                .select()
                .from(restaurant)
@@ -97,18 +97,38 @@ class RestaurantController {
         }
     }
 
-    async update(req: Request, res: Response) {
-        const payload: RestaurantSchema = req.body;
+    async update(req: Request, res: Response, next: NextFunction) {
+        const payload = req.body;
 
         try {
-            const updatedUserId = await db.update(restaurant)
-                .set(payload)
-                .where(eq(restaurant.id, payload.id))
+            const nameExists = await db.select()
+                .from(restaurant)
+                .where(eq(restaurant.name, payload.name)
+            );
+
+            if (isEmpty(nameExists)) {
+                const error = new Error();
+                error.message = "Invalid payload";
+                next(error);
+                return;
+            }
+            console.log({ name: restaurant.name })
+
+            const updatedRestuarant = await db.update(restaurant)
+                .set({ 
+                    address: payload.address, 
+                    phone: payload.phone,
+                    location: payload.location,
+                    cuisines: payload.cuisines
+                })
+                .where(eq(restaurant.name, "chefVictors"))
                 .returning();
+            console.log({ updatedRestuarant })
             
-            return res.status(201).json({ success: true, payload: updatedUserId })
+            return res.status(201).json({ success: true, payload: updatedRestuarant })
         } catch (error) {
-            console.log(`DB Error: ${error}`);
+            // console.log({ error })
+            return next(error);
         }
     }
 
@@ -127,3 +147,5 @@ class RestaurantController {
 }
 
 export const restaurantController = new RestaurantController();
+
+// code to check for existence is repeated

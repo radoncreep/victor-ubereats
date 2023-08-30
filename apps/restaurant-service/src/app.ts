@@ -9,6 +9,7 @@ app
     .use(morgan("dev"))
     .use("/api", routes)
     .use((error: any, req: Request, res: Response, next: NextFunction) => {
+        console.log("ERROR HANDLER", error)
         return res.json({ success: false, error })
     })
 

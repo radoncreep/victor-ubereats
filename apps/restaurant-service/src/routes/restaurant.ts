@@ -17,7 +17,12 @@ router.post(
     restaurantController.create
 );
 
-router.put("", restaurantController.update);
+router.put(
+    "", 
+    // authorizeRole, 
+    validationPipe,
+    restaurantController.update
+);
 
 router.delete("/:id", validateUUID, restaurantController.delete);
 
