@@ -1,9 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 
-import { dbClient } from "../config/database";
 import { ControllerResponse, DatabaseInterface, MenuItem } from "../types";
-import { MenuItemSchema, NewMenuItemSchema } from "../schema/menuItem";
-import { MenuItemRepository } from "../repository/MenuItemRepository";
+import { isEmpty } from "../utils/helpers";
 
 
 export class MenuItemController {
@@ -13,10 +11,18 @@ export class MenuItemController {
         this.repository = repository;
     }
 
-    async getById() {
+    getById = async (req: Request, res: Response, next: NextFunction) => {
+        const result = await this.repository.getById(req.params.menuItemId);
+
+        console.log({result})
+
+        return res.json({
+            success: true,
+            payload: result
+        });
     }
 
-    getAll() {
+    async getMany() {
         
     }
 

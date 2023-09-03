@@ -20,10 +20,10 @@ export type ControllerResponse<T> = Promise<SuccessResponse<T> | void>;
 
 export interface DatabaseInterface <E> {
     create(payload: E): Promise<E>;
-    getById(id: string): Promise<E>;
-    getMany(limit: number, page: number): Promise<E[]>;
+    getById(id: string): Promise<E | null>;
+    getMany(limit: number, page: number): Promise<E[] | null>;
     delete(id: string): void;
-    update(id: string, payload: E): Promise<E>;
+    update(id: string, payload: E): Promise<E | null>;
 }
 
 export type MenuItem = {

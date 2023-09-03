@@ -4,7 +4,7 @@ import { v4 as uuid4 } from "uuid";
 
 import { RestaurantSchema, restaurants } from "../schema/restaurant";
 import { db, dbClient } from "../config/database";
-import { isEmpty } from "../utils/helper";
+import { isEmpty } from "../utils/helpers";
 
 
 class RestaurantController {

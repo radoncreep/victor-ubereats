@@ -5,7 +5,7 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import { MenuItemSchema, menuitems } from "../schema/menuItem";
 import { DatabaseInterface, MenuItem } from "../types";
 import { dbClient } from "../config/database";
-import { isEmpty } from "../utils/helper";
+import { isEmpty } from "../utils/helpers";
 
 
 export class MenuItemRepository implements DatabaseInterface<MenuItem> {
@@ -23,16 +23,19 @@ export class MenuItemRepository implements DatabaseInterface<MenuItem> {
         return result[0];
     }
 
-    async getById(id: string): Promise<MenuItem> {
+    async getById(id: string): Promise<MenuItem | null> {
+        console.log({ id })
         const data = await this.db
             .select()
             .from(this.entity)
             .where(eq(this.entity.id, id));
 
-        return data[0];
+        console.log("DATA ", data)
+
+        return isEmpty(data) ? null : data[0];
     }
 
-    async getMany(limit: number, page: number): Promise<MenuItem[]> {
+    async getMany(limit: number, page: number): Promise<MenuItem[] | null> {
         const offset = (page - 1) * limit;
 
         const paginatedMenuItems = await this.db.select()
@@ -40,7 +43,7 @@ export class MenuItemRepository implements DatabaseInterface<MenuItem> {
             .limit(limit)
             .offset(offset)
 
-        return paginatedMenuItems;
+        return isEmpty(paginatedMenuItems) ? null : paginatedMenuItems;
     }
     
     async count(): Promise<number> {
@@ -55,10 +58,10 @@ export class MenuItemRepository implements DatabaseInterface<MenuItem> {
         await this.db.delete(this.entity).where(eq(this.entity.id, id));
     }
 
-    async update(id: string, payload: MenuItem): Promise<MenuItem> {
+    async update(id: string, payload: MenuItem): Promise<MenuItem | null> {
         const existingMenuItem = await this.getById(id);
 
-        if (isEmpty(existingMenuItem)) {
+        if (!existingMenuItem) {
             throw new Error("Invalid ID");
         }
 
@@ -72,6 +75,6 @@ export class MenuItemRepository implements DatabaseInterface<MenuItem> {
             .where(eq(this.entity.id, id))
             .returning();
         
-        return updatedRestuarant[0];
+        return isEmpty(updatedRestuarant) ? null : updatedRestuarant[0];
     }
 }
