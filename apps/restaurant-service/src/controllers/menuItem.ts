@@ -1,20 +1,38 @@
+import { Request, Response, NextFunction } from "express";
+
+import { dbClient } from "../config/database";
+import { ControllerResponse, DatabaseInterface, MenuItem } from "../types";
+import { MenuItemSchema, NewMenuItemSchema } from "../schema/menuItem";
+import { MenuItemRepository } from "../repository/MenuItemRepository";
 
 
-class MenuItemController {
+export class MenuItemController {
+    private readonly repository;
 
-    constructor() {}
-
-    getById() {
-        console.log()
+    constructor(repository: DatabaseInterface<MenuItem>) {
+        this.repository = repository;
     }
 
-    getAll() {}
+    async getById() {
+    }
 
-    create() {}
+    getAll() {
+        
+    }
+
+    create = async (req: Request, res: Response, next: NextFunction) =>{
+        const payload = req.body;
+        
+        try {
+            const result = await this.repository.create(payload);
+
+            return res.status(201).send(result);
+        } catch (error) {
+            return next(error);
+        }
+    }
 
     update() {}
 
     delete() {}
 }
-
-export const menuItemController = new MenuItemController();

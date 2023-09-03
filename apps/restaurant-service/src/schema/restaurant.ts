@@ -1,10 +1,13 @@
-import { serial, text, timestamp, pgTable, json, integer, decimal, uuid } from "drizzle-orm/pg-core";
-import { RestaurantAddress, RestaurantLocation, Cusine, OpeningHours } from "../entities/restaurant";
+import { text, timestamp, pgTable, json, integer, uuid } from "drizzle-orm/pg-core";
 import { z } from "zod";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 
+import { RestaurantAddress, RestaurantLocation, Cusine, OpeningHours } from "../entities/restaurant";
+import { relations } from "drizzle-orm";
+import { menuitems } from "./menuItem";
 
-export const restaurant = pgTable("restaurant", {
+
+export const restaurants = pgTable("restaurants", {
   id: uuid("id").primaryKey().notNull().defaultRandom(),
   name: text("name").notNull().unique(),
   description: text("description").notNull(),
@@ -19,30 +22,29 @@ export const restaurant = pgTable("restaurant", {
   updatedAt: timestamp("updated_at"),
 });
 
-export type RestaurantSchema = typeof restaurant.$inferSelect;
-export type NewRestaurantSchema = typeof restaurant.$inferInsert;
+export const restaurantRelations = relations(restaurants, ({ many }) => ({
+  menuItems: many(menuitems)
+}));
 
-export const selectRestaurantSchema = createSelectSchema(restaurant);
+export const selectRestaurantSchema = createSelectSchema(restaurants);
 
-const cusines = ["african", "nigerian", "italian"];
-
-const zodTimeTransformer = z.custom((value) => {
-  if (typeof value !== "string") throw new Error("invalid type");
-  const timeRegex = /^(?:[01]\d|2[0-3]):[0-5]\d$/; 
+// const zodTimeTransformer = z.custom((value) => {
+//   if (typeof value !== "string") throw new Error("invalid type");
+//   const timeRegex = /^(?:[01]\d|2[0-3]):[0-5]\d$/; 
   
-  if (!timeRegex.test(value)) {
-    throw new Error("Invalid 24-hour time format");
-  }
+//   if (!timeRegex.test(value)) {
+//     throw new Error("Invalid 24-hour time format");
+//   }
 
-  const [hours, minutes] = value.split(":").map(Number);
-  if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59) {
-    throw new Error("Invalid hours or minutes");
-  }
+//   const [hours, minutes] = value.split(":").map(Number);
+//   if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59) {
+//     throw new Error("Invalid hours or minutes");
+//   }
 
-  return new Date(`2000-01-01T${value}:00Z`);
-});
+//   return new Date(`2000-01-01T${value}:00Z`);
+// });
 
-export const insertRestaurantSchema = createInsertSchema(restaurant, {
+export const insertRestaurantSchema = createInsertSchema(restaurants, {
   name: (schema) => schema.name.nonempty().trim().min(3),
   address: z.object({
     streetName: z.string(),
@@ -61,3 +63,6 @@ export const insertRestaurantSchema = createInsertSchema(restaurant, {
   })
   // image: (schema) => schema.image.
 });
+
+export type RestaurantSchema = typeof restaurants.$inferSelect;
+export type NewRestaurantSchema = typeof restaurants.$inferInsert;

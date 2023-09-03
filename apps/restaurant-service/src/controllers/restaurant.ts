@@ -2,14 +2,17 @@ import { NextFunction, Request, Response } from "express";
 import { and, eq, sql } from "drizzle-orm";
 import { v4 as uuid4 } from "uuid";
 
-import { RestaurantSchema, restaurant } from "../schema/restaurant";
-import { db } from "../config/database";
+import { RestaurantSchema, restaurants } from "../schema/restaurant";
+import { db, dbClient } from "../config/database";
 import { isEmpty } from "../utils/helper";
 
 
 class RestaurantController {
+    // private repository: DatabaseInterface<RestaurantSchema>;
 
-    constructor() {}
+    constructor() {
+        // this.repository = new MenuItemRepository(dbClient);
+    }
 
     async getById(req: Request, res: Response, next: NextFunction): Promise<Response<RestaurantSchema> | void> {
         const { id: restaurantId } = req.params;
@@ -17,8 +20,8 @@ class RestaurantController {
         try {
            const data = await db
                .select()
-               .from(restaurant)
-               .where(eq(restaurant.id, restaurantId));
+               .from(restaurants)
+               .where(eq(restaurants.id, restaurantId));
     
            return res.json({ success: true, payload: data });
        } catch (error) {
@@ -35,12 +38,12 @@ class RestaurantController {
         try {
             const restaurantCount = await db
                 .select({ count: sql<number>`count(*)` })
-                .from(restaurant);
+                .from(restaurants);
 
             const totalRestaurants = restaurantCount[0].count;
 
             const paginatedRestaurants = await db.select()
-                .from(restaurant)
+                .from(restaurants)
                 .limit(limit)
                 .offset(offset)
     
@@ -63,11 +66,11 @@ class RestaurantController {
         const payload = req.body;
 
         const nameExists = await db.select()
-            .from(restaurant)
+            .from(restaurants)
             .where(
                 and(
-                    eq(restaurant.name, payload.name), 
-                    eq(restaurant.phone, payload.phone)
+                    eq(restaurants.name, payload.name), 
+                    eq(restaurants.phone, payload.phone)
                 )
             );
 
@@ -82,9 +85,9 @@ class RestaurantController {
             // upload image from request to a cdn or bucket - ImageUploadService
 
             const data = await db
-                .insert(restaurant)
+                .insert(restaurants)
                 .values({...payload, id: uuid4()})
-                .returning({ id: restaurant.id });
+                .returning({ id: restaurants.id });
 
             // event for created restaurant event or pubsub
             // this can serve as duplicating the restaurant db on the users 
@@ -103,8 +106,8 @@ class RestaurantController {
 
         try {
             const existingId = await db.select()
-                .from(restaurant)
-                .where(eq(restaurant.id, restaurantId)
+                .from(restaurants)
+                .where(eq(restaurants.id, restaurantId)
             );
 
             if (isEmpty(existingId)) {
@@ -114,7 +117,7 @@ class RestaurantController {
                 return;
             }
 
-            const updatedRestuarant = await db.update(restaurant)
+            const updatedRestuarant = await db.update(restaurants)
                 .set({ 
                     address: payload.address, 
                     phone: payload.phone,
@@ -122,7 +125,7 @@ class RestaurantController {
                     cuisines: payload.cuisines,
                     name: payload.name
                 })
-                .where(eq(restaurant.id, restaurantId))
+                .where(eq(restaurants.id, restaurantId))
                 .returning();
             
             return res.status(201).json({ success: true, payload: updatedRestuarant })
@@ -135,8 +138,8 @@ class RestaurantController {
         const {id: restaurantId} = req.params;
 
         try {
-            await db.delete(restaurant)
-                .where(eq(restaurant.id, restaurantId))
+            await db.delete(restaurants)
+                .where(eq(restaurants.id, restaurantId))
             
             return res.status(200).json({ success: true, payload: null }); 
         } catch (error) {

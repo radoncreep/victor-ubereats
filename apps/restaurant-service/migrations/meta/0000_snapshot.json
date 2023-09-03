@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "pg",
-  "id": "30c1263b-e110-4dbb-9481-cbffa36c76ad",
+  "id": "25109a7f-14ef-4298-af97-84a8c53cb530",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "menuitems": {
@@ -10,7 +10,7 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "bigserial",
+          "type": "uuid",
           "primaryKey": true,
           "notNull": true
         },
@@ -28,24 +28,44 @@
         },
         "price": {
           "name": "price",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "imageUrl": {
+          "name": "imageUrl",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "image_url": {
-          "name": "image_url",
-          "type": "text",
+        "restaurantId": {
+          "name": "restaurantId",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": true
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "menuitems_restaurantId_restaurants_id_fk": {
+          "name": "menuitems_restaurantId_restaurants_id_fk",
+          "tableFrom": "menuitems",
+          "tableTo": "restaurants",
+          "columnsFrom": [
+            "restaurantId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "restaurant": {
-      "name": "restaurant",
+    "restaurants": {
+      "name": "restaurants",
       "schema": "",
       "columns": {
         "id": {
@@ -129,7 +149,22 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {
+        "restaurants_name_unique": {
+          "name": "restaurants_name_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "name"
+          ]
+        },
+        "restaurants_phone_unique": {
+          "name": "restaurants_phone_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "phone"
+          ]
+        }
+      }
     }
   },
   "enums": {},
