@@ -24,6 +24,7 @@ export interface DatabaseInterface <E> {
     getMany(limit: number, page: number): Promise<E[] | null>;
     delete(id: string): void;
     update(id: string, payload: E): Promise<E | null>;
+    count(): Promise<number>;
 }
 
 export type MenuItem = {
