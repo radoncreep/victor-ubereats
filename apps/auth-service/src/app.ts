@@ -1,5 +1,4 @@
 import express, { json, Request, Response, NextFunction } from "express";
-import dotenv from "dotenv";
 import morgan from "morgan";
 import { appRouter } from "./routes";
 

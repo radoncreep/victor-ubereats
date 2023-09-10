@@ -5,9 +5,12 @@
   "author": "Victor Onofiok",
   "license": "MIT",
   "scripts": {
-    "start": "yarn run build && yarn run dist/server.js",
+    "build": "tsc",
     "dev": "nodemon --exec ts-node src/server.ts",
-    "build": "tsc"
+    "db:generate": "drizzle-kit generate:pg --config=./src/config/db/drizzle.config.ts",
+    "db:push": "drizzle-kit push:pg",
+    "db:preview": "yarn drizzle-kit studio --config=./src/config/db/drizzle.config.ts",
+    "start": "yarn run build && yarn run dist/server.js"
   },
   "devDependencies": {
     "ubereats-types": "*"

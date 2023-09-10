@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { pgTable, text, uuid, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, uuid, jsonb, pgSchema } from "drizzle-orm/pg-core";
 import { Address, CardDetails, DeliveryAddress } from "ubereats-types";
 
 import { users } from "../user/user.schema";

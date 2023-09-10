@@ -1,8 +1,8 @@
 import { jsonb, pgEnum, pgTable, text, uuid } from "drizzle-orm/pg-core";
-import { Address, CardDetails, UserRoles } from "ubereats-types";
+import { CardDetails, UserRoles } from "ubereats-types";
 
 
-const userRoles = pgEnum("user_role", [UserRoles.Customer, UserRoles.Rider, UserRoles.Vendor]);
+export const userRoles = pgEnum("user_role", [UserRoles.Customer, UserRoles.Rider, UserRoles.Vendor]);
 
 export const users = pgTable("users", {
     id: uuid("id").notNull().primaryKey(),
@@ -12,7 +12,7 @@ export const users = pgTable("users", {
     phone: text("phone_number").notNull().unique(),
     pasword_hash: text("password").notNull(),
     payment_details: jsonb("payment_details").$type<CardDetails[]>(), 
-    role: userRoles("user_roles").notNull().$type<UserRoles>().default(UserRoles.Customer)
+    role: userRoles("user_role").notNull().$type<UserRoles>().default(UserRoles.Customer)
 });
 
 export type UserSchema = typeof users.$inferSelect;

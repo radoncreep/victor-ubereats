@@ -1,6 +1,5 @@
 import { Client } from "pg";
 import { drizzle } from "drizzle-orm/node-postgres";
-import { migrate } from "drizzle-orm/postgres-js/migrator";
 
 
 const dbClient = new Client({
