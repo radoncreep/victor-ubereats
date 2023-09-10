@@ -6,11 +6,11 @@ export const userRoles = pgEnum("user_role", [UserRoles.Customer, UserRoles.Ride
 
 export const users = pgTable("users", {
     id: uuid("id").notNull().primaryKey(),
-    first_name: text("first_name").notNull(),
-    lastname_name: text("last_name").notNull(),
+    firstname: text("first_name").notNull(),
+    lastname: text("last_name").notNull(),
 	email: text("email").notNull().unique(),
     phone: text("phone_number").notNull().unique(),
-    pasword_hash: text("password").notNull(),
+    password: text("password").notNull(),
     payment_details: jsonb("payment_details").$type<CardDetails[]>(), 
     role: userRoles("user_role").notNull().$type<UserRoles>().default(UserRoles.Customer)
 });
