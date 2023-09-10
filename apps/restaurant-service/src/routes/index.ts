@@ -1,11 +1,11 @@
 import { Router } from "express";
 
 import restaurantRoutes from "./restaurant";
-import customerRoutes from "./menuItem";
+import menuItemRoutes from "./menuItem";
 
 const router = Router();
 
 router.use("/restaurant", restaurantRoutes);
-router.use("/customer", customerRoutes);
+router.use("/menu-item", menuItemRoutes);
 
 export default router;

@@ -7,6 +7,6 @@
     "esModuleInterop": true,  // Simplify module interoperability
     "skipLibCheck": true      // Skip type checking of declaration files
   },
-  "include": ["src/**/*.ts"], // Specify source files
+  "include": ["src/**/*.ts", "src/config/db/drizzle.config.ts"], // Specify source files
   "exclude": ["node_modules"] // Exclude node_modules directory
 }

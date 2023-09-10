@@ -1,13 +1,12 @@
+import { Location } from "ubereats-types";
+
 export type RestaurantAddress = {
     streetName: string;
     number: string;
     postalCode: string;
 }
 
-export type RestaurantLocation = {
-    longitude: number;
-    latitude: number;
-}
+export type RestaurantLocation = Location;
 
 export type Cusine = string;
 

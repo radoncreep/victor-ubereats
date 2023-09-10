@@ -1,9 +1,10 @@
 import dotenv from "dotenv";
+dotenv.config();
+
 import { dbClient } from "./config/database";
 import { app } from "./app";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
-dotenv.config();
 
 
 

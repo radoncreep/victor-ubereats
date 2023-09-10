@@ -11,13 +11,17 @@ export function authorizeRole(req: Request, res: Response, next: NextFunction) {
 
     const token = authHeader.split(" ")[1];
 
-    const decodedToken = verify(token, "supernicesecret") as Record<string, any>;
-    const user = decodedToken as User;
-
-    if (user.role === "vendor") {
-        req.user = user;
-        next();
-    } else {
-        throw new Error("Bad Request");
+    try {
+        const decodedToken = verify(token, "supernicesecret") as Record<string, any>;
+        const user = decodedToken as User;
+    
+        if (user.role === "vendor") {
+            req.user = user;
+            next();
+        } else {
+            throw new Error("Bad Request");
+        }
+    } catch (error) {
+        next(error);
     }
 }
