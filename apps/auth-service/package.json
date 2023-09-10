@@ -13,7 +13,10 @@
     "start": "yarn run build && yarn run dist/server.js"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.3",
     "ubereats-types": "*"
   },
-  "dependencies": {}
+  "dependencies": {
+    "bcryptjs": "^2.4.3"
+  }
 }

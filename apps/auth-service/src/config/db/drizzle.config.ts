@@ -1,7 +1,5 @@
 import type { Config } from "drizzle-kit";
 
-console.log("HOST ", process.env.DATABASE_HOST)
-
 export default {
     schema: [
         "./src/domains/customer/customer.schema.ts",
@@ -9,10 +7,10 @@ export default {
     ],
     driver: "pg",
     dbCredentials: {
-        user: process.env.DATABASE_USER,
-        host: process.env.DATABASE_HOST as string,
-        port: Number(process.env.DATABASE_PORT as string),
-        database: process.env.DATABASE_NAME as string
+        user: "postgres",
+        host: "127.0.0.1",
+        port: 5432,
+        database: "auth_service_db"
     },
     out: "./migrations"
 } satisfies Config;

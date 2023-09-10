@@ -3,7 +3,6 @@ import { z } from "zod";
 import type { Request, Response, NextFunction } from "express";
 
 import { users } from "./user.schema";
-import { UserRoles } from "ubereats-types";
 
 
 const insertUserSchema = createInsertSchema(users, {

@@ -1,4 +1,4 @@
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, sql, or } from "drizzle-orm";
 import { v4 as uuid4 } from "uuid";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { NewUserSchema, UserSchema, users } from "./user.schema";
@@ -31,6 +31,19 @@ export class UserRepository implements DatabaseInterface<UserSchema> {
             .select()
             .from(this.entity)
             .where(eq(this.entity.id, id));
+
+
+        return isEmpty(data) ? null : data[0];
+    }
+
+    async getOne(payload: UserSchema["email"] | UserSchema["phone"]): Promise<UserSchema | null> {
+        const data = await this.db
+            .select()
+            .from(this.entity)
+            .where(or(
+                eq(this.entity.phone, payload),
+                eq(this.entity.email, payload)
+            ));
 
 
         return isEmpty(data) ? null : data[0];
