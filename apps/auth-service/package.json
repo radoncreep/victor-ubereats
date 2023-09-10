@@ -1,7 +1,8 @@
 {
-  "name": "@radoncreep/auth-microservice",
+  "name": "@ubereats/auth-service",
   "version": "1.0.0",
   "main": "index.js",
+  "author": "Victor Onofiok",
   "license": "MIT",
   "scripts": {
     "start": "yarn run build && yarn run dist/app.js",
