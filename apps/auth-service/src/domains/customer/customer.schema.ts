@@ -1,31 +1,33 @@
-import { relations } from "drizzle-orm";
-import { pgTable, text, uuid, jsonb, pgSchema } from "drizzle-orm/pg-core";
-import { Address, CardDetails, DeliveryAddress } from "ubereats-types";
-
-import { users } from "../user/user.schema";
+import { pgTable, text, uuid, jsonb } from "drizzle-orm/pg-core";
+import { Address, CardDetails, DeliveryAddress, UserRoles } from "ubereats-types";
 
 
 export const customers = pgTable("customers", {
-	customer_id: uuid("id").primaryKey().notNull(),
-	first_name: text("first_name").notNull(),
-    lastname_name: text("last_name").notNull(),
+	customerId: uuid("id").primaryKey().notNull(),
+	firstname: text("first_name").notNull(),
+    lastname: text("last_name").notNull(),
 	email: text("email").notNull().unique(),
     phone: text("phone_number").notNull().unique(),
-    pasword_hash: text("password").notNull(),
-    deliveryAddress: jsonb("delivery_address").$type<DeliveryAddress[]>().notNull(),
-    payment_details: jsonb("payment_details").$type<CardDetails[]>(), 
-	user_id: uuid("user_id").references(() => users.id).notNull(),
+    password: text("password").notNull(),
+    deliveryAddress: jsonb("delivery_address")
+		.$type<DeliveryAddress[]>()
+		.default([{
+			address: {
+				streetName: "",
+				number: ""
+			},
+			location: {
+				latitude: 0.0,
+				longitude: 0.0
+			}
+		}])
+		.notNull(),
+    paymentCards: jsonb("payment_cards").$type<CardDetails[]>().notNull(), 
+	role: text("role").default(UserRoles.Customer).notNull()
 	// preferences 
 	// favourite restaurants 
 	// favourite menuItems
 });
-
-export const customerRelations = relations(customers, ({ one }) => ({
-	user: one(users, {
-		fields: [customers.user_id],
-		references: [users.id]
-	})
-}));
 
 export type NewCustomerSchema = typeof customers.$inferInsert;
 export type CustomerSchema = typeof customers.$inferSelect;

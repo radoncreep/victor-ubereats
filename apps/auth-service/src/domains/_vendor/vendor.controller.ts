@@ -2,9 +2,9 @@ import { DatabaseInterface, UserRoles } from "ubereats-types";
 import { Request, Response, NextFunction } from "express";
 import { v4 as uuid4 } from "uuid";
 
-import { NewUserSchema, UserSchema } from "./user.schema";
+import { NewUserSchema, UserSchema } from "./vendor.schema";
 import { PasswordServiceInterface } from "../../types";
-import { UserDatabaseInterface } from "./user.repository";
+import { UserDatabaseInterface } from "./vendor.repository";
 import { NewCustomerSchema } from "../customer/customer.schema";
 
 
@@ -23,12 +23,12 @@ export class UserController {
             if (existingUser) throw new Error("Already existing user.");
 
             if (role === UserRoles.Customer) {
-                const customerPayload: NewCustomerSchema = {
-                    ...payload,
-                    customerId: "",
-                    deliveryAddress: [],
-                    userId: ""
-                }
+                // const customerPayload: NewCustomerSchema = {
+                //     ...payload,
+                //     customerId: "",
+                //     deliveryAddress: [],
+                //     userId: ""
+                // }
                 // const result = await this.db.create();
 
                 // return res.status(201).json({ success: true, payload: result });

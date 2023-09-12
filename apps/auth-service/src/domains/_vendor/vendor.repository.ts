@@ -1,7 +1,7 @@
 import { and, eq, sql, or } from "drizzle-orm";
 import { v4 as uuid4 } from "uuid";
 import { drizzle } from "drizzle-orm/node-postgres";
-import { NewUserSchema, UserSchema, users } from "./user.schema";
+import { NewUserSchema, UserSchema, users } from "./vendor.schema";
 import { dbClient } from "../../config/db/client";
 import { DatabaseInterface } from "ubereats-types";
 import { NewCustomerSchema, customers } from "../customer/customer.schema";
