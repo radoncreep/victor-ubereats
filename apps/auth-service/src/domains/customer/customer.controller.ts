@@ -37,25 +37,59 @@ export class CustomerController {
             });
 
             const accessToken = this.tokenService.sign(newCustomer);
+            const refreshToken = this.tokenService.sign({
+                customerId: newCustomer.customerId, 
+                email: newCustomer.email
+            });
 
             return res
                 .status(201)
-                .json({ success: true, payload: {accessToken} });
+                .json({ success: true, payload: {accessToken, refreshToken} });
         } catch (error) {
             next(error);
         }   
     }
 
     updateUser = async (req: Request, res: Response, next: NextFunction) => {
-        
+
     }
 
     getUserById = async (req: Request, res: Response, next: NextFunction) => {
+        const { customerId } = req.body as Record<"customerId", CustomerSchema["customerId"]>;
 
+        try {
+            const result = await this.db.getById(customerId);
+    
+            if (!result) throw new Error("Invalid ID");
+    
+            const {password, ...user} = result;
+    
+            return res.json({
+                success: true,
+                payload: user
+            });
+        } catch (error) {
+            return next(error);
+        }
     }
     
     getOneUser = async (req: Request, res: Response, next: NextFunction) => {
+        const payload = req.body;
 
+        try {     
+            const result = await this.db.getById(payload.email || payload.customerId);
+    
+            if (!result) throw new Error("Invalid ID");
+    
+            const {password, ...user} = result;
+    
+            return res.json({
+                success: true,
+                payload: user
+            });
+        } catch (error) {
+            return next(error);
+        }
     }
 
     getUsers = async (req: Request, res: Response, next: NextFunction) => {
@@ -63,6 +97,6 @@ export class CustomerController {
     }
     
     deactivateUser = async (req: Request, res: Response, next: NextFunction) => {
-
+        
     }
 }

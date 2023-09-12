@@ -19,4 +19,16 @@ router.post("",
     customerController.create
 );
 
+router.get("/:customerId",
+    customerController.getUserById
+);
+
+router.put("/:customerId",
+    customerController.updateUser
+);
+
+router.delete("/",
+    customerController.deactivateUser
+);
+
 export { router as customerRoutes };
