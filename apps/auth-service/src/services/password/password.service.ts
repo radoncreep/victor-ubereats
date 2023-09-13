@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 
-import { PasswordServiceInterface } from "../../types";
+import { PasswordServiceInterface } from "./password.interface";
 
 
 export class PasswordService implements PasswordServiceInterface {

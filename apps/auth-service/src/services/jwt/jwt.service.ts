@@ -1,13 +1,17 @@
 import jwt from "jsonwebtoken";
 
-import { ITokenManager, SignedPayload, UnsignedPayload } from "../../types";
+import { 
+    ITokenManager, 
+    SignedPayload, 
+    UnsignedPayload 
+} from "./jwt.interface";
 
 
 export class TokenManager implements ITokenManager {
-    private readonly token_secret: string | undefined = undefined;
+    private readonly token_secret: string = "";
 
     constructor() {
-        this.token_secret = process.env.TOKEN_SECRET;
+        this.token_secret = process.env.TOKEN_SECRET as string;
 
         if (this.token_secret == undefined) throw new Error("ServerError");
     }
@@ -23,7 +27,7 @@ export class TokenManager implements ITokenManager {
     }
 
     verify(payload: SignedPayload) {
-        const decodedPayload = jwt.verify(payload, this.token_secret!)
+        const decodedPayload = jwt.verify(payload, this.token_secret!);
 
         return decodedPayload as jwt.JwtPayload;
     }

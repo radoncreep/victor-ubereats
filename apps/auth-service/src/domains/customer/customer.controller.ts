@@ -4,7 +4,7 @@ import { v4 as uuid4 } from "uuid";
 
 import { CustomerSchema, NewCustomerSchema } from "./customer.schema";
 import { PasswordService } from "../../services/password/password.service";
-import { ITokenManager } from "../../types";
+import { ITokenManager } from "../../services/jwt/jwt.interface";
 
 
 export type NewCustomerReqPayload = Omit<NewCustomerSchema, "customerId">;
