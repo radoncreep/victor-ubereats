@@ -3,7 +3,7 @@ import { Request, Response, NextFunction } from "express";
 import { v4 as uuid4 } from "uuid";
 
 import { CustomerSchema, NewCustomerSchema } from "./customer.schema";
-import { PasswordService } from "../../features/password/password.service";
+import { PasswordService } from "../../services/password/password.service";
 import { ITokenManager } from "../../types";
 
 

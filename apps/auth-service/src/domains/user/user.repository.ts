@@ -5,7 +5,7 @@ import { NewUserSchema, UserSchema, users } from "./user.schema";
 import { dbClient } from "../../config/db/client";
 import { DatabaseInterface } from "ubereats-types";
 import { NewCustomerSchema, customers } from "../customer/customer.schema";
-import { PasswordService } from "../../features/password/password.service";
+import { PasswordService } from "../../services/password/password.service";
 
 function isEmpty<T extends any[]>(arg: T): boolean {
     if (arg.length !== 0) return false;

@@ -1,10 +1,10 @@
 import { Router } from "express";
 
-import { PasswordService } from "../../features/password/password.service";
+import { PasswordService } from "../../services/password/password.service";
 import { CustomerController } from "./customer.controller";
 import { CustomerRepository } from "./customer.repository";
 import { customerValidationPipe } from "./customer.middleware";
-import { TokenManager } from "../../features/jwt/jwt.service";
+import { TokenManager } from "../../services/jwt/jwt.service";
 
 const router = Router();
 
