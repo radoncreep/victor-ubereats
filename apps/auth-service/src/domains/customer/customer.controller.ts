@@ -24,8 +24,8 @@ export class CustomerController {
     
             if (existingCustomer) throw new Error("Already existing user.");
 
-            const hashedPassword = await this.passwordService.encrypt(payload.password);
             const customerId = uuid4();
+            const hashedPassword = await this.passwordService.encrypt(payload.password);
 
             const {password, ...newCustomer} = await this.db.create({ 
                 ...payload,
@@ -34,7 +34,11 @@ export class CustomerController {
                 paymentCards: [],
                 deliveryAddress: payload.deliveryAddress || [],
                 role: UserRoles.Customer
+                // set status to unverified
             });
+
+            // send an email
+            // or notification or both (asynchronously)
 
             const accessToken = this.tokenService.sign(newCustomer);
             const refreshToken = this.tokenService.sign({

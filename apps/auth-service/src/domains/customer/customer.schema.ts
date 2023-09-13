@@ -24,6 +24,9 @@ export const customers = pgTable("customers", {
 		.notNull(),
     paymentCards: jsonb("payment_cards").$type<CardDetails[]>().notNull(), 
 	role: text("role").default(UserRoles.Customer).notNull()
+	// verified true or false
+	// deactivated
+	// true or fa
 	// preferences 
 	// favourite restaurants 
 	// favourite menuItems
