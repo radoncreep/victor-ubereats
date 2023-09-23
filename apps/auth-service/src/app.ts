@@ -8,8 +8,10 @@ app
     .use(morgan("dev"))
     .use("/api/auth", appRouter)
     .use((error: any, req: Request, res: Response, next: NextFunction) => {
-        console.log({ error })
-        return res.json({ success: false, error })
+        console.log("HANDLED ERROR ", { error })
+        return res
+            .status(500)
+            .json({ success: false, error: error.message || "Server Error" });
     })
     
 
