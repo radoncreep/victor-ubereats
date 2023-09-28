@@ -1,0 +1,15 @@
+# syntax=docker/dockerfile:1
+
+FROM node:20-alpine as base
+
+FROM base as installer
+WORKDIR /repo
+COPY package.json yarn.lock ./
+# use turbo to install deps
+RUN yarn install --frozen-lockfile
+COPY . .
+RUN yarn build
+
+FROM base as build
+WORKDIR /repo
+COPY --from=installer ./repo/restaurant-service/dist .

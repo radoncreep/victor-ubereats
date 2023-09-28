@@ -7,13 +7,28 @@ import app from "./app";
 import { dbClient } from "./config/db/client";
 
 
-const PORT = Number(process.env.PORT || 1018);
+const PORT = Number(process.env.PORT || 1001);
+
+async function createDatabase() {
+    const databaseName = process.env.POSTGRES_DB_NAME || "authdb";
+    await dbClient.connect();
+
+    const databaseExistsQuery = 'SELECT 1 FROM pg_database WHERE datname = $1';
+    const result = await dbClient.query(databaseExistsQuery, [`${databaseName}`]);
+
+    if (result.rows.length === 0) {
+      const createDatabaseQuery = 'CREATE DATABASE authDb';
+      await dbClient.query(createDatabaseQuery);
+      console.log(`created database: ${databaseName}`);
+      return;
+    }
+    console.log(`database ${databaseName} exists`);
+}
 
 (async () => {
     try {
-        await dbClient.connect();
-        console.log("Database Connected.");
-    
+        await createDatabase();
+
         await migrate(drizzle(dbClient), { migrationsFolder: "migrations"});
         console.log("Migration Successful.");
      

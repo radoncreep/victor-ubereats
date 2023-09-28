@@ -1,4 +1,3 @@
-import { DatabaseInterface, UserRoles } from "ubereats-types";
 import { Request, Response, NextFunction } from "express";
 import { v4 as uuid4 } from "uuid";
 
@@ -8,6 +7,7 @@ import { ITokenManager } from "../../services/jwt/jwt.interface";
 import { OneTimePasswordInterface } from "../../services/oneTimePassword/otp.interface";
 import { PhoneInterface } from "../../services/phone/phone.interface";
 import { CacheInterface } from "../../services/cache/cache.interface";
+import { DatabaseInterface, UserRoles } from "ubereats-types";
 
 
 export type NewCustomerReqPayload = Omit<NewCustomerSchema, "customerId">;

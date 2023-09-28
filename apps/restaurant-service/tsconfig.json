@@ -1,12 +1,28 @@
 {
   "compilerOptions": {
-    "target": "ES2021",       // Target ECMAScript version
-    "module": "CommonJS",     // Module system
-    "outDir": "./dist",       // Output directory for compiled files
-    "strict": true,           // Enable strict type checking
-    "esModuleInterop": true,  // Simplify module interoperability
-    "skipLibCheck": true      // Skip type checking of declaration files
+    "removeComments": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "ESNext",
+    "incremental": true,
+    "strictNullChecks": false,
+    "noImplicitAny": false,
+    "noFallthroughCasesInSwitch": false,
+    "composite": false,
+    "outDir": "./dist",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "declaration": false,
+    "declarationMap": false,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "inlineSources": false,
+    "isolatedModules": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "preserveWatchOutput": true,
+    "skipLibCheck": true,
+    "strict": true
   },
-  "include": ["src/**/*.ts"], // Specify source files
-  "exclude": ["node_modules"] // Exclude node_modules directory
+  "include": ["src/**/*.ts", "drizzle.config.ts"], // I don;t think i need drizzle.config.ts in compilation
+  "exclude": ["node_modules"]
 }
