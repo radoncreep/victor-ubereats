@@ -8,6 +8,10 @@
   "license": "MIT",
   "private": true,
   "dependencies": {
+    "cors": "^2.8.5",
     "typescript": "latest"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.14"
   }
 }
