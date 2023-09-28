@@ -1,5 +1,7 @@
 export type ReceipentDetails = {
     phone: string;
+    country?: string;
+    countryCode?: string;
 }
 
 type SmsContent = string;
@@ -17,5 +19,5 @@ export type SmsPayload = {
 
 export interface SmsServiceInterface {
     verifyPhone(phone: string): Promise<string>;
-    sendMessage(payload: SmsPayload): void;
+    sendMessage(payload: SmsPayload): Promise<{success: boolean}>;
 }
