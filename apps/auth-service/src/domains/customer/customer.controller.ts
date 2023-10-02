@@ -5,6 +5,9 @@ import { v4 as uuid4 } from "uuid";
 import { CustomerSchema, NewCustomerSchema } from "./customer.schema";
 import { PasswordService } from "../../services/password/password.service";
 import { ITokenManager } from "../../services/jwt/jwt.interface";
+import { OneTimePasswordInterface } from "../../services/oneTimePassword/otp.interface";
+import { PhoneInterface } from "../../services/phone/phone.interface";
+import { CacheInterface } from "../../services/cache/cache.interface";
 
 
 export type NewCustomerReqPayload = Omit<NewCustomerSchema, "customerId">;
@@ -12,8 +15,11 @@ export type NewCustomerReqPayload = Omit<NewCustomerSchema, "customerId">;
 export class CustomerController {
     constructor(
         private readonly db: DatabaseInterface<CustomerSchema>,
-        private passwordService: PasswordService,
-        private tokenService: ITokenManager,
+        private readonly passwordService: PasswordService,
+        private readonly tokenService: ITokenManager,
+        private readonly phoneService: PhoneInterface,
+        private readonly otpService: OneTimePasswordInterface,
+        private readonly cacheService: CacheInterface
     ) {}
 
     create = async (req: Request, res: Response, next: NextFunction) => {
@@ -93,17 +99,18 @@ export class CustomerController {
     }
 
     submitPhone = async (req: Request, res: Response, next: NextFunction) => {
-        // remember to create validation for this to ensure what's derived from the req is what's expected... right
-        // validate phone, country code etc use some api service to validate further
-        const { countryCode, localNumber: localNumberFromBody } = req.body as Record<string, string>;
+        const { countryCode, localNumber } = req.body as Record<string, string>;
 
-        // generate one time password for phone
+        const validPhone = this.phoneService.createValidPhone({ countryCode, localNumber });
+
+        const oneTimePassword = +this.otpService.generate({ length: 6, pattern: "numeric" });
+
+        const cacheKey = await this.cacheService.set(validPhone, oneTimePassword, {
+            expiry: '30000'
+        });
+
         
-        // store the phone and otp in a cache, for validation in future requests 
         // publish message to the notification service attaching the routing key and message content(country code + phone token) 
-
-
-
     }
 
     getUsers = async (req: Request, res: Response, next: NextFunction) => {

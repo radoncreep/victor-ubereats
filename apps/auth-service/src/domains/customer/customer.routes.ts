@@ -5,13 +5,20 @@ import { CustomerController } from "./customer.controller";
 import { CustomerRepository } from "./customer.repository";
 import { customerValidationPipe } from "./customer.middleware";
 import { TokenManager } from "../../services/jwt/jwt.service";
+import { PhoneService } from "../../services/phone/phone.service";
+import { OneTimePasswordService } from "../../services/oneTimePassword/otp.service";
+import { CacheService } from "../../services/cache/cache.service";
+
 
 const router = Router();
 
 const customerController = new CustomerController(
     new CustomerRepository,
     new PasswordService,
-    new TokenManager
+    new TokenManager,
+    new PhoneService, 
+    new OneTimePasswordService,
+    new CacheService
 );
 
 router.post("", 

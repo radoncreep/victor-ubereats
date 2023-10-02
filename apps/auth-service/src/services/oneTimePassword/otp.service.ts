@@ -3,7 +3,7 @@ import randomize from "randomatic";
 import { OneTimePasswordInterface, OtpConfig } from "./otp.interface";
 
 
-export class OneTimePassword implements OneTimePasswordInterface {
+export class OneTimePasswordService implements OneTimePasswordInterface {
     private defaultConfig: OtpConfig = {
         length: 6, 
         pattern: "alphanumeric"
