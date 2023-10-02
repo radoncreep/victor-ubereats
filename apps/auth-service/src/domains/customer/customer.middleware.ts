@@ -31,3 +31,18 @@ export function customerValidationPipe(req: Request, res: Response, next: NextFu
         return next(error);
     }
 }
+
+export function validatePhonePipe(req: Request, res: Response, next: NextFunction) {
+    try {
+        const { phone, country_code, country } = req.body;
+        // const result = insertUserSchema.pick({ phone: true }).parse(req.body);
+        if (!phone || !country_code || !country) {
+            const error = new Error();
+            error.message = "Invalid Request";
+            throw error;
+        }
+        next();
+    } catch (error) {
+        next(error);
+    }
+}

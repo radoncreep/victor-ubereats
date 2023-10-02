@@ -22,13 +22,13 @@ export function validationPipe(req: Request, res: Response, next: NextFunction) 
             resquestSchema.parse(restaurantData);
         } catch (error) {
             if (error instanceof ZodError) {
-                next(error);
-                return;
+                throw error;
             }
         }
         next();
     } catch (error) {
         console.log(`Parser Error: ${error}`);
+        next(error);
     }
 }
 

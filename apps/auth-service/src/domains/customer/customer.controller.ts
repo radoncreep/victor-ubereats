@@ -13,7 +13,7 @@ export class CustomerController {
     constructor(
         private readonly db: DatabaseInterface<CustomerSchema>,
         private passwordService: PasswordService,
-        private tokenService: ITokenManager
+        private tokenService: ITokenManager,
     ) {}
 
     create = async (req: Request, res: Response, next: NextFunction) => {
@@ -54,10 +54,6 @@ export class CustomerController {
         }   
     }
 
-    updateUser = async (req: Request, res: Response, next: NextFunction) => {
-
-    }
-
     getUserById = async (req: Request, res: Response, next: NextFunction) => {
         const { customerId } = req.body as Record<"customerId", CustomerSchema["customerId"]>;
 
@@ -96,11 +92,29 @@ export class CustomerController {
         }
     }
 
+    submitPhone = async (req: Request, res: Response, next: NextFunction) => {
+        // remember to create validation for this to ensure what's derived from the req is what's expected... right
+        // validate phone, country code etc use some api service to validate further
+        const { countryCode, localNumber: localNumberFromBody } = req.body as Record<string, string>;
+
+        // generate one time password for phone
+        
+        // store the phone and otp in a cache, for validation in future requests 
+        // publish message to the notification service attaching the routing key and message content(country code + phone token) 
+
+
+
+    }
+
     getUsers = async (req: Request, res: Response, next: NextFunction) => {
 
     }
     
     deactivateUser = async (req: Request, res: Response, next: NextFunction) => {
         
+    }
+
+    updateUser = async (req: Request, res: Response, next: NextFunction) => {
+
     }
 }
