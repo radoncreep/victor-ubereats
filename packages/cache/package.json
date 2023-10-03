@@ -1,0 +1,18 @@
+{
+    "name": "ubereats-cache-pkg",
+    "version": "1.0.0",
+    "description": "shared services package",
+    "main": "src/index.ts",
+    "types": "src/index.ts",
+    "author": "Victor Onofiok",
+    "license": "MIT",
+    "private": true,
+    "dependencies": {
+        "redis": "^4.6.10",
+        "typescript": "latest"
+    },
+    "scripts": {
+        "cache:dev": "nodemon --exec ts-node src/cache/**.ts",
+        "cache:build": "tsc"
+    }
+}
