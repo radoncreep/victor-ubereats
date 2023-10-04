@@ -5,35 +5,49 @@ services:
       context: .
       dockerfile: ./apps/auth-service/Dockerfile
     ports:
-      - 1018:1018
+      - 1001:1001
     env_file:
       - ./apps/auth-service/.env
-    # depends_on:
-    #   - auth-srv-db
+    depends_on:
+      - auth-srv-db
+
   restaurant-ms:
+    # the reason the root package.json and yarn.lock are accessible to the Dockerfile in the restaurant service dir
+    # is because the context defines ./ubereats which is the current dir of the docker-compose.yml file as the source path
+    # for file operations
+    # any Docker command using a file dir will be relative to the context provided
     build:
       context: .
       dockerfile: ./apps/restaurant-service/Dockerfile
     ports:
-      - 1019:1019
+      - 1018:1018
     env_file:  # although every var in the .env file is loaded into this service, but the service will only use what it requires or references
       - ./apps/restaurant-service/.env
     depends_on:
       - restaurant-srv-db
-  restaurant-srv-db:
+
+  auth-srv-db:
     image: postgres
     ports:
       - 5432:5432
     restart: always
     env_file:
+      - ./apps/auth-service/.env
+    volumes:
+      - auth-srv-db:/var/lib/postgresql/data
+
+  restaurant-srv-db:
+    image: postgres
+    ports:
+      - 5433:5432
+    restart: always
+    env_file:
       - ./apps/restaurant-service/.env
     # environment: # whatever is specified here will be loaded into this services env
     #   - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-    #   - POSTGRES_USER=postgres
-    #   - POSTGRES_DB=restaurant-pg-db
     volumes:
       - restaurant-srv-db:/var/lib/postgresql/data
+
 volumes:
   restaurant-srv-db:
-    
-    
+  auth-srv-db:  

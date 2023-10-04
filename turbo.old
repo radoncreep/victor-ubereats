@@ -1,0 +1,22 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "pipeline": {
+    "@ubereats/auth-service#build": {
+      "dependsOn": ["^build"],
+      "cache": false
+    },
+    "ubereats-cache-pkg#build": {},
+    "ubereats-types#build": {},
+    "tsconfig#build": {},
+    "test": {},
+    "lint": {},
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "start": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"]
+    }
+  }
+}

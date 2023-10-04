@@ -1,21 +1,27 @@
 import { Router } from "express";
+import { RedisCacheService } from "ubereats-cache-pkg";
 
 import { PasswordService } from "../../services/password/password.service";
 import { CustomerController } from "./customer.controller";
 import { CustomerRepository } from "./customer.repository";
 import { customerValidationPipe } from "./customer.middleware";
 import { TokenManager } from "../../services/jwt/jwt.service";
+import { PhoneService } from "../../services/phone/phone.service";
+import { OneTimePasswordService } from "../../services/oneTimePassword/otp.service";
 
 const router = Router();
 
 const customerController = new CustomerController(
     new CustomerRepository,
     new PasswordService,
-    new TokenManager
+    new TokenManager,
+    new PhoneService,
+    new OneTimePasswordService,
+    new RedisCacheService
 );
 
-router.post("", 
-    customerValidationPipe, 
+router.post("",
+    customerValidationPipe,
     customerController.create
 );
 
@@ -30,5 +36,7 @@ router.put("/:customerId",
 router.delete("/",
     customerController.deactivateUser
 );
+
+router.post("/submit/phone", customerController.submitPhone);
 
 export { router as customerRoutes };

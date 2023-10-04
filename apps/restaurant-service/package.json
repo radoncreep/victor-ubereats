@@ -11,10 +11,11 @@
     "dev": "nodemon --exec ts-node src/index.ts",
     "db:generate": "drizzle-kit generate:pg",
     "db:push": "drizzle-kit push:pg",
-    "start": "node dist/index.js"
+    "start": "node dist/src/index.js"
   },
   "dependencies": {
-    "ubereats-types": "*"
+    "ubereats-types": "*",
+    "tsconfig": "*"
   },
   "devDependencies": {}
 }

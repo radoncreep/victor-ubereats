@@ -8,25 +8,26 @@ import { migrate } from "drizzle-orm/postgres-js/migrator";
 
 
 
-const PORT = Number(process.env.PORT) || 1019;
+const PORT = Number(process.env.PORT) || 1018;
 
 async function createDatabase() {
-    const databaseName = process.env.POSTGRES_DB_NAME || "restaurantDb";
+    // make sure db name is in lowercase as postgres defaults to lowercase all through if not explicity altered
+    const databaseName = process.env.POSTGRES_DB_NAME || "restaurantdb";
     await dbClient.connect();
 
 
-    console.log("does this run?")
+    console.log("does this run?", databaseName)
     const databaseExistsQuery = 'SELECT 1 FROM pg_database WHERE datname = $1';
     const result = await dbClient.query(databaseExistsQuery, [`${databaseName}`]);
 
-    if (result.rows.length === 0) {
-        console.log("creating new db")
+    if (result.rowCount === 0) {
       const createDatabaseQuery = 'CREATE DATABASE restaurantDb';
       await dbClient.query(createDatabaseQuery);
+
       console.log(`created database: ${databaseName}`);
       return;
     }
-    console.log(`database ${databaseName} exists`)
+    console.log(`database ${databaseName} exists`);
 }
 
 (async () => {
