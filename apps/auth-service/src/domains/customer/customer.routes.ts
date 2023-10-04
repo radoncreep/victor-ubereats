@@ -9,7 +9,6 @@ import { TokenManager } from "../../services/jwt/jwt.service";
 import { PhoneService } from "../../services/phone/phone.service";
 import { OneTimePasswordService } from "../../services/oneTimePassword/otp.service";
 
-
 const router = Router();
 
 const customerController = new CustomerController(
@@ -37,5 +36,7 @@ router.put("/:customerId",
 router.delete("/",
     customerController.deactivateUser
 );
+
+router.post("/submit/phone", customerController.submitPhone);
 
 export { router as customerRoutes };

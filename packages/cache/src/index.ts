@@ -1,2 +1,2 @@
-export * from "./cache.service";
-export * from "./cache.interface"
+export { RedisCacheService } from "./cache.service";
+export type { CacheInterface } from "./cache.interface";

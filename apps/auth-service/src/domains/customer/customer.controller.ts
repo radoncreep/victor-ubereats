@@ -109,6 +109,7 @@ export class CustomerController {
             expiry: '30000'
         });
 
+        return res.json({ success: true, payload: cacheKey })
         
         // publish message to the notification service attaching the routing key and message content(country code + phone token) 
     }

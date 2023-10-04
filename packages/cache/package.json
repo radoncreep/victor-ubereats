@@ -2,8 +2,9 @@
     "name": "ubereats-cache-pkg",
     "version": "1.0.0",
     "description": "shared services package",
-    "main": "src/index.ts",
-    "types": "src/index.ts",
+    "main": "./dist/index.js",
+    "module": "./dist/index.mjs",
+    "types": "./dist/index.d.ts",
     "author": "Victor Onofiok",
     "license": "MIT",
     "private": true,
@@ -12,7 +13,8 @@
         "typescript": "latest"
     },
     "scripts": {
+        "build": "rimraf dist && tsup src/index.ts --format cjs,esm --dts",
         "cache:dev": "nodemon --exec ts-node src/cache/**.ts",
-        "cache:build": "tsc"
+        "start": "node dist/index.js"
     }
 }

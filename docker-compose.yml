@@ -26,8 +26,6 @@ services:
     depends_on:
       - restaurant-srv-db
 
-<<<<<<< HEAD
---- 
   auth-srv-db:
     image: postgres
     ports:
@@ -38,12 +36,10 @@ services:
     volumes:
       - auth-srv-db:/var/lib/postgresql/data
 
-=======
->>>>>>> 81af92b (shared pkg config docker + turbo build + docker compose)
   restaurant-srv-db:
     image: postgres
     ports:
-      - 5432:5432
+      - 5433:5432
     restart: always
     env_file:
       - ./apps/restaurant-service/.env
@@ -52,26 +48,6 @@ services:
     volumes:
       - restaurant-srv-db:/var/lib/postgresql/data
 
-<<<<<<< HEAD
----
 volumes:
   restaurant-srv-db:
-  auth-srv-db:
-  
-=======
-  auth-srv-db:
-    image: postgres
-    ports: 
-      - 5433:5432
-    restart: always
-    env_file:
-      - ./apps/auth-service/.env
-    volumes: 
-      - auth-srv-db:/var/lib/postgresql/data
-
-volumes:
-  restaurant-srv-db:
-  auth-srv-db:
-    
->>>>>>> 81af92b (shared pkg config docker + turbo build + docker compose)
-    
+  auth-srv-db:  
