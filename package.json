@@ -11,7 +11,9 @@
     "auth:dev": "turbo run dev --filter auth-service",
     "restaurant:dev": "turbo run dev --filter @ubereats/restaurant-service",
     "notif:dev": "turbo run dev --filter @ubereats/notification-service",
-    "auth:start": "turbo run start --filter auth-service"
+    "auth:start": "turbo run start --filter auth-service",
+    "compose:dev": "docker compose -f docker-compose.dev.yml up --build",
+    "compose:prod": "docker compose -f docker-compose.yml up --build"
   },
   "private": true,
   "workspaces": [

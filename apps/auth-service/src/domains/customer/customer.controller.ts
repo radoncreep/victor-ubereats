@@ -99,17 +99,25 @@ export class CustomerController {
     }
 
     submitPhone = async (req: Request, res: Response, next: NextFunction) => {
-        const { countryCode, localNumber } = req.body as Record<string, string>;
+        try {
+            const { countryCode, localNumber } = req.body as Record<string, string>;
 
-        const validPhone = this.phoneService.createValidPhone({ countryCode, localNumber });
-
-        const oneTimePassword = +this.otpService.generate({ length: 6, pattern: "numeric" });
-
-        const cacheKey = await this.cacheService.set(validPhone, oneTimePassword, {
-            expiry: '30000'
-        });
-
-        return res.json({ success: true, payload: cacheKey })
+            if (!countryCode || !localNumber) {
+                throw new Error("Invalid requests.")
+            }
+    
+            const validPhone = this.phoneService.createValidPhone({ countryCode, localNumber });
+    
+            const oneTimePassword = +this.otpService.generate({ length: 6, pattern: "numeric" });
+    
+            const cacheKey = await this.cacheService.set(validPhone, oneTimePassword, {
+                expiry: '30000'
+            });
+    
+            return res.json({ success: true, payload: cacheKey })
+        } catch (error) {
+            next(error)
+        }
         
         // publish message to the notification service attaching the routing key and message content(country code + phone token) 
     }

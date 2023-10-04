@@ -1,7 +1,10 @@
 import dotenv from "dotenv";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
-dotenv.config();
+
+const environment = process.env.NODE_ENV;
+console.log(environment)
+dotenv.config({ path: `.env.${environment}`});
 
 import app from "./app";
 import { dbClient } from "./config/db/client";
