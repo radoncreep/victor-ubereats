@@ -8,6 +8,7 @@ import { customerValidationPipe } from "./customer.middleware";
 import { TokenManager } from "../../services/jwt/jwt.service";
 import { PhoneService } from "../../services/phone/phone.service";
 import { OneTimePasswordService } from "../../services/oneTimePassword/otp.service";
+import { catchAsyncErrors } from "../../utility/errorHandler";
 
 const router = Router();
 
@@ -22,21 +23,23 @@ const customerController = new CustomerController(
 
 router.post("",
     customerValidationPipe,
-    customerController.create
+    catchAsyncErrors(customerController.create)
 );
 
 router.get("/:customerId",
-    customerController.getUserById
+    catchAsyncErrors(customerController.getUserById)
 );
 
 router.put("/:customerId",
-    customerController.updateUser
+    catchAsyncErrors(customerController.updateUser)
 );
 
 router.delete("/",
-    customerController.deactivateUser
+    catchAsyncErrors(customerController.deactivateUser)
 );
 
-router.post("/submit/phone", customerController.submitPhone);
+router.post("/submit/phone", 
+    catchAsyncErrors(customerController.submitPhone)
+);
 
 export { router as customerRoutes };
