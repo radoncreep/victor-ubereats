@@ -8,6 +8,7 @@ import { OneTimePasswordInterface } from "../../services/oneTimePassword/otp.int
 import { PhoneInterface } from "../../services/phone/phone.interface";
 import { DatabaseInterface, UserRoles } from "ubereats-types";
 import { CacheInterface } from "ubereats-cache-pkg";
+import { AMQProducer } from "../../services/events/producer/producer";
 
 
 export type NewCustomerReqPayload = Omit<NewCustomerSchema, "customerId">;
@@ -19,8 +20,33 @@ export class CustomerController {
         private readonly tokenService: ITokenManager,
         private readonly phoneService: PhoneInterface,
         private readonly otpService: OneTimePasswordInterface,
-        private readonly cacheService: CacheInterface
+        private readonly cacheService: CacheInterface,
+        private readonly mqService: AMQProducer
     ) {}
+
+    submitPhone = async (req: Request, res: Response, next: NextFunction) => {
+        const { countryCode, localNumber } = req.body as Record<string, string>;
+
+        if (!countryCode || !localNumber) {
+            throw new Error("Invalid requests.")
+        }
+
+        const validPhone = this.phoneService.createValidPhone({ countryCode, localNumber });
+
+        const oneTimePassword = +this.otpService.generate({ length: 6, pattern: "numeric" });
+
+        const cacheKey = await this.cacheService.set(validPhone, oneTimePassword, {
+            expiry: '30000'
+        });
+ 
+        // publish message to the notification service attaching the routing key and message content(country code + phone token) 
+        const messageBody = `Use code ${oneTimePassword} to verify Ubereats Account.`;
+        const message = { phoneNumber: validPhone, messageBody };
+        const routingKey = "sms"
+        this.mqService.publishMessage(message, routingKey);
+
+        return res.json({ success: true, payload: cacheKey })
+    }
 
     create = async (req: Request, res: Response, next: NextFunction) => {
         const payload = req.body as NewCustomerReqPayload;
@@ -96,22 +122,6 @@ export class CustomerController {
         } catch (error) {
             return next(error);
         }
-    }
-
-    submitPhone = async (req: Request, res: Response, next: NextFunction) => {
-        const { countryCode, localNumber } = req.body as Record<string, string>;
-
-        const validPhone = this.phoneService.createValidPhone({ countryCode, localNumber });
-
-        const oneTimePassword = +this.otpService.generate({ length: 6, pattern: "numeric" });
-
-        const cacheKey = await this.cacheService.set(validPhone, oneTimePassword, {
-            expiry: '30000'
-        });
-
-        return res.json({ success: true, payload: cacheKey })
-        
-        // publish message to the notification service attaching the routing key and message content(country code + phone token) 
     }
 
     getUsers = async (req: Request, res: Response, next: NextFunction) => {

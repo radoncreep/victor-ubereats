@@ -1,7 +1,12 @@
 node_modules
+
 .DS_Store
+
 /dist
-.turbo
 /apps/**/dist
-**/.env
 **/dist
+
+**/.env
+.env.**
+
+.turbo

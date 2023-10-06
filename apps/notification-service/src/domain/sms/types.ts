@@ -13,11 +13,10 @@ export type SmsOptions = {
 }
 
 export type SmsPayload = {
-    receipient: ReceipentDetails;
-    emailOptions: SmsOptions;
+    phoneNumber: string;
+    body: string;
 }
 
 export interface SmsServiceInterface {
-    verifyPhone(phone: string): Promise<string>;
     sendMessage(payload: SmsPayload): Promise<{success: boolean}>;
 }
