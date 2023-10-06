@@ -9,6 +9,7 @@ import { TokenManager } from "../../services/jwt/jwt.service";
 import { PhoneService } from "../../services/phone/phone.service";
 import { OneTimePasswordService } from "../../services/oneTimePassword/otp.service";
 import { catchAsyncErrors } from "../../utility/errorHandler";
+import { AMQProducer } from "../../services/events/producer/producer";
 
 const router = Router();
 
@@ -18,7 +19,8 @@ const customerController = new CustomerController(
     new TokenManager,
     new PhoneService,
     new OneTimePasswordService,
-    new RedisCacheService
+    new RedisCacheService,
+    new AMQProducer
 );
 
 router.post("",

@@ -8,6 +8,7 @@ dotenv.config({ path: `.env.${environment}`});
 
 import app from "./app";
 import { dbClient } from "./config/db/client";
+import { AMQProducer } from "./services/events/producer/producer";
 
 
 const PORT = Number(process.env.PORT || 1001);
@@ -22,6 +23,7 @@ async function createDatabase() {
     if (result.rows.length === 0) {
       const createDatabaseQuery = 'CREATE DATABASE authDb';
       await dbClient.query(createDatabaseQuery);
+      
       console.log(`created database: ${databaseName}`);
       return;
     }
@@ -34,6 +36,8 @@ async function createDatabase() {
 
         await migrate(drizzle(dbClient), { migrationsFolder: "migrations"});
         console.log("Migration Successful.");
+
+        await new AMQProducer().createChannel();
      
         app.listen(PORT, () => {
             console.log(`${process.env.SERVICE_NAME} running on ${PORT}`);

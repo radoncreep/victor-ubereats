@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "removeComments": true,
+      "allowSyntheticDefaultImports": true,
+      "target": "ES2016",
+      "incremental": false,
+      "strictNullChecks": false,
+      "noImplicitAny": false,
+      "noFallthroughCasesInSwitch": false,
+      "composite": false,
+      "outDir": "./dist",
+      "moduleResolution": "node",
+      "declaration": true,
+      "declarationMap": true,
+      "esModuleInterop": true,
+      "forceConsistentCasingInFileNames": true,
+      "inlineSources": false,
+      "isolatedModules": true,
+      "noUnusedLocals": false,
+      "noUnusedParameters": false,
+      "preserveWatchOutput": true,
+      "skipLibCheck": true,
+      "strict": true
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
+}

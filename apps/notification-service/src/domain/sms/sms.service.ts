@@ -18,27 +18,19 @@ export class TwilioSmsServce implements SmsServiceInterface {
     }
 
     async sendMessage(payload: SmsPayload) {
-        const result = await this.smsClient.messages.create({
-            body: payload.emailOptions.content,
-            from: this.clientNumber,
-            to: payload.receipient.phone,
-        });
-
-        if (result.status === "failed") return { success: false };
-
+        console.log("PHONE NUMBER ", payload.phoneNumber)
+        try {
+            const result = await this.smsClient.messages.create({
+                from: this.clientNumber,
+                to: payload.phoneNumber,
+                body: payload.body
+            });
+            console.log(result)
+    
+            if (result.status === "failed") return { success: false };
+        } catch (error) {
+            console.log("TWILIO ERROR: ", error)
+        }
         return { success: true };
-    }
-
-    async verifyPhone(phone: string): Promise<string> {
-        // const verification = await this.smsClient.verify.v2.services(this.accountSID)
-        //     .verifications
-        //     .create({ to: phone, channel: 'sms' });
-        
-        // if (verification.status !== "200") {
-        //     throw new Error("failed to send stuff.")
-        // }
-
-        // verification.
-        return "";
     }
 }
