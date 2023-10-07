@@ -1,4 +1,4 @@
-import amqplib, { Channel, Connection, ConsumeMessage } from "amqplib";
+import amqplib, { Channel, Connection, ConsumeMessage, Replies } from "amqplib";
 import { QueueMessageHandlerInterface } from "./consumer.interface";
 
 
@@ -8,6 +8,8 @@ export class AMQPConsumer {
     private readonly URI: string = process.env.RABBITMQ_URI as string;
     private channel: Channel | undefined;
     private exchangeName = "notification";
+    private readonly defaultBindingKey = ".*."; // using a wildcard to accept all messages from the exhg - topic exhg
+    private queue: Replies.AssertQueue | undefined;
 
     constructor(private readonly consumerSet: Map<string, QueueMessageHandlerInterface>) {}   
 
@@ -16,9 +18,7 @@ export class AMQPConsumer {
         this.channel = await connection.createChannel();
     }
 
-    public async consumeMessage() {
-        if (!this.channel) await this.createChannel();
-        let consumedMessage;
+    public async declareExchange() {
 
         // the exhg is also declared in the consumer;
         // because it just as it is forbidden to publish to a non-existing exhg
@@ -27,40 +27,44 @@ export class AMQPConsumer {
         await this.channel!.assertExchange(this.exchangeName, exchangeType, {
             durable: false
         });
+    }
 
+    // if we don't create a queue that binds to an exhg with a binding key that message will be discarded
+    public async bindQueues() {
         // declare queue to bind to exhg
         // empty queue name so rabbitmq or (any other amqp service) generates one for us
-        const queue = await this.channel!.assertQueue("", { exclusive: true });
-        const queueName = queue.queue;
+        this.queue = await this.channel!.assertQueue("", { exclusive: true });
+        const queueName = this.queue?.queue;
 
-        // bind queue to exhange
-        await this.channel!.bindQueue(queueName, this.exchangeName, "sms");
+        const bindingKeys = this.consumerSet.keys();
+        for (let bindingKey of bindingKeys) {
+            // bind queue to exhange
+            const rep = await this.channel!.bindQueue(queueName, this.exchangeName, bindingKey);
+            console.log({ rep })
+            console.log("created queue with binding key: ", bindingKey);
+        }
+    }
 
-        await this.channel!.consume(queueName, (message) => {
+    public async consumeMessage() {
+        if (!this.channel) await this.createChannel();
+        let consumedMessage;
+
+        await this.channel!.consume(this.queue!.queue, (message) => {
             if (!message) {
                 throw new Error("couldn't consume message.")
             }
 
-            this.useMessageHandler(message);
+            const { fields: { routingKey }, content } = message;
+    
+            const consumer = this.consumerSet.get(routingKey);
+    
+            if (!consumer) throw new Error(`No Consumer for ${routingKey} key`);
+    
+            const payload = JSON.parse(content.toString());
+            consumer.handleMessage(payload);
 
         }, { noAck: true });
 
         return consumedMessage;
-    }
-
-    public useMessageHandler(message: ConsumeMessage) {
-        console.log({ message: message.content.toString() });
-
-        const {
-            fields: { routingKey },
-            content
-        } = message;
-
-        const consumer = this.consumerSet.get(routingKey);
-
-        if (!consumer) throw new Error(`No Consumer for ${routingKey} key`);
-
-        const payload = JSON.parse(content.toString());
-        consumer.handleMessage(payload);
     }
 }

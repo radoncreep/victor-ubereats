@@ -2,11 +2,12 @@ import express, { json } from "express";
 import dotenv from "dotenv";
 dotenv.config();
 import logger from "morgan";
-import cors from "cors";
 
 import { TwilioSmsServce } from "./domain/sms/sms.service";
 import { AMQPConsumer } from "./services/events/consumer";
 import { SmsQueueMessageHandler } from "./domain/sms/sms.consumer";
+import { EmailQueueMessageHandler } from "./domain/email/email.consumer";
+import { EmailService } from "./domain/email/email.service";
 
 
 const app = express();
@@ -20,11 +21,17 @@ const PORT = process.env.PORT || 1014;
 app.listen(PORT, async () => { 
 
     const smsHandler = new SmsQueueMessageHandler(new TwilioSmsServce);
+    const emailHandler = new EmailQueueMessageHandler(new EmailService);
+
     const queueMsgHandlerMap = new Map();
-    queueMsgHandlerMap.set("sms", smsHandler);
+    queueMsgHandlerMap.set(smsHandler.bindingKey, smsHandler);
+    queueMsgHandlerMap.set(emailHandler.bindingKey, emailHandler);
+    queueMsgHandlerMap.set(smsHandler.bindingKey, smsHandler);
 
     const consumer = new AMQPConsumer(queueMsgHandlerMap);
     await consumer.createChannel();
+    await consumer.declareExchange();
+    await consumer.bindQueues();
     await consumer.consumeMessage();
 
     // new SmsController(new TwilioSmsServce, new CacheService, new AMQPConsumer)

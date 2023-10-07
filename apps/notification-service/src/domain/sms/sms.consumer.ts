@@ -3,12 +3,12 @@ import { SmsServiceInterface } from "./types";
 
 
 export class SmsQueueMessageHandler implements QueueMessageHandlerInterface {
-    readonly messageType: string = "";
+    readonly bindingKey: string = "sms";
 
     constructor(private smsService: SmsServiceInterface) {}
 
     handleMessage(message: any): void {
-        console.log({ message })
+        // console.log({ message })
         const { payload: { phoneNumber, messageBody } } = message;
         
         if (!phoneNumber || !messageBody) {

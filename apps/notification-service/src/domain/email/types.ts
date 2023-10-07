@@ -29,6 +29,5 @@ export type EmailPayload = {
 }
 
 export interface EmailServiceInterface {
-    verifyEmail(email: string): Promise<boolean>;
     sendEmail(payload: EmailPayload): void;
 }

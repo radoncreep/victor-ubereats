@@ -1,4 +1,4 @@
 export interface QueueMessageHandlerInterface {
-    messageType: string;
+    bindingKey: string;
     handleMessage(message: any): void
 }
