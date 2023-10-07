@@ -5,13 +5,16 @@ import { QueueMessageHandlerInterface } from "./consumer.interface";
 type ExchangeType = "direct" | "fanout" | "topic" | "headers";
 
 export class AMQPConsumer {
-    private readonly URI: string = process.env.RABBITMQ_URI as string;
     private channel: Channel | undefined;
-    private exchangeName = "notification";
-    private readonly defaultBindingKey = ".*."; // using a wildcard to accept all messages from the exhg - topic exhg
+    // private exchangeName = "notification";
+    private readonly defaultBindingKey = "#"; // default accept all messages from the exhg - topic exhg
     private queue: Replies.AssertQueue | undefined;
 
-    constructor(private readonly consumerSet: Map<string, QueueMessageHandlerInterface>) {}   
+    constructor(
+        private readonly URI: string,
+        private readonly exchangeName: string,
+        private readonly consumerSet: Map<string, QueueMessageHandlerInterface>
+    ) {}   
 
     public async createChannel() {
         const connection = await amqplib.connect(this.URI);

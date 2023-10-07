@@ -25,6 +25,7 @@ export class CustomerController {
     ) {}
 
     submitPhone = async (req: Request, res: Response, next: NextFunction) => {
+        console.log("BODY ", req.body)
         const { countryCode, localNumber } = req.body as Record<string, string>;
 
         if (!countryCode || !localNumber) {

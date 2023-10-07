@@ -26,9 +26,12 @@ app.listen(PORT, async () => {
     const queueMsgHandlerMap = new Map();
     queueMsgHandlerMap.set(smsHandler.bindingKey, smsHandler);
     queueMsgHandlerMap.set(emailHandler.bindingKey, emailHandler);
-    queueMsgHandlerMap.set(smsHandler.bindingKey, smsHandler);
 
-    const consumer = new AMQPConsumer(queueMsgHandlerMap);
+    const consumer = new AMQPConsumer(
+        process.env.RABBITMQ_URI as string, 
+        "notification", // this can be better
+        queueMsgHandlerMap
+    );
     await consumer.createChannel();
     await consumer.declareExchange();
     await consumer.bindQueues();
