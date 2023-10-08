@@ -3,6 +3,7 @@ import morgan from "morgan";
 import { appRouter } from "./routes";
 
 const app = express();
+
 app
     .use(json({ type: ["application/json"] }))
     .use(morgan("dev"))

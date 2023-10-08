@@ -36,9 +36,11 @@ export class CustomerController {
 
         const oneTimePassword = +this.otpService.generate({ length: 6, pattern: "numeric" });
 
-        const cacheKey = await this.cacheService.set(validPhone, oneTimePassword, {
+        const result = await this.cacheService.set(validPhone, oneTimePassword, {
             expiry: '30000'
         });
+
+        if (!result) throw new Error("Server Error: Cache");
  
         // publish message to the notification service attaching the routing key and message content(country code + phone token) 
         const messageBody = `Use code ${oneTimePassword} to verify Ubereats Account.`;
@@ -46,7 +48,7 @@ export class CustomerController {
         const routingKey = "sms"
         this.mqService.publishMessage(message, routingKey);
 
-        return res.json({ success: true, payload: cacheKey })
+        return res.json({ success: true, payload: result });
     }
 
     create = async (req: Request, res: Response, next: NextFunction) => {

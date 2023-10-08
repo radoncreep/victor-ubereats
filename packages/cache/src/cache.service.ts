@@ -1,19 +1,23 @@
-import { RedisClientType, createClient } from "redis";
+import { RedisClientOptions, RedisClientType, RedisModules, createClient } from "redis";
 import dotenv from "dotenv";
 dotenv.config();
 
 import { CacheInterface, CacheOptions } from "./cache.interface";
 
-
+type CacheConnectionType = {
+    password: string;
+    host: string;
+    port: number;
+}
 export class RedisCacheService implements CacheInterface {
     private client: RedisClientType;
 
-    constructor() {
+    constructor(private connectionOptions: CacheConnectionType) {
         this.client = createClient({
-            password: process.env.REDIS_CLIENT_PASSWORD as string,
+            password: connectionOptions.password,
             socket: {
-                host: 'redis-11115.c300.eu-central-1-1.ec2.cloud.redislabs.com',
-                port: 11115
+                host: connectionOptions.host,
+                port: connectionOptions.port || 11115
             }
         });
         this.client.on('error', (err) => {
@@ -22,7 +26,12 @@ export class RedisCacheService implements CacheInterface {
     }
 
     public async connect(): Promise<void> {
-        await this.client.connect();
+        try {
+            await this.client.connect();
+            console.log("Cache connected.")
+        } catch (error) {
+            throw new Error("Cache Error: ", error);
+        }
     }
 
     public async stopConnection(): Promise<void> {
@@ -34,12 +43,12 @@ export class RedisCacheService implements CacheInterface {
     }
 
     public async set(key: string, value: any, options?: CacheOptions): Promise<string | null> {
-     
-        if (typeof value == "string") {
-            return await this.client.set(key, value);
+        try {
+            return await this.client.set(key, JSON.stringify(value));
+        } catch (error) {
+            // console.log(error)
+            // throw new Error("Set Cache Error: ", error);
         }
-
-        return null;
     }
 
     public async delete(key: string): Promise<void> {
@@ -54,7 +63,7 @@ export class RedisCacheService implements CacheInterface {
 // (async () => {
 //     const client = new RedisCacheService();
 //     try {
-//         await client.connect();
+//         // await client.connect();
 
 //         await client.set("password", "kerngkrengkenr");
 
