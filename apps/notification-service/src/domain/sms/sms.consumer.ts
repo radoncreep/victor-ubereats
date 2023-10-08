@@ -8,7 +8,7 @@ export class SmsQueueMessageHandler implements QueueMessageHandlerInterface {
     constructor(private smsService: SmsServiceInterface) {}
 
     handleMessage(message: any): void {
-        // console.log({ message })
+        console.log({ message })
         const { payload: { phoneNumber, messageBody } } = message;
         
         if (!phoneNumber || !messageBody) {

@@ -1,4 +1,4 @@
-import amqplib, { Channel, Connection, ConsumeMessage, Replies } from "amqplib";
+import amqplib, { Channel, Replies } from "amqplib";
 import { QueueMessageHandlerInterface } from "./consumer.interface";
 
 
@@ -8,7 +8,7 @@ export class AMQPConsumer {
     private channel: Channel | undefined;
     // private exchangeName = "notification";
     private readonly defaultBindingKey = "#"; // default accept all messages from the exhg - topic exhg
-    private queue: Replies.AssertQueue | undefined;
+    private declaredQueues: Replies.AssertQueue[] = []
 
     constructor(
         private readonly URI: string,
@@ -34,40 +34,48 @@ export class AMQPConsumer {
 
     // if we don't create a queue that binds to an exhg with a binding key that message will be discarded
     public async bindQueues() {
-        // declare queue to bind to exhg
-        // empty queue name so rabbitmq or (any other amqp service) generates one for us
-        this.queue = await this.channel!.assertQueue("", { exclusive: true });
-        const queueName = this.queue?.queue;
-
+        
         const bindingKeys = this.consumerSet.keys();
         for (let bindingKey of bindingKeys) {
-            // bind queue to exhange
-            const rep = await this.channel!.bindQueue(queueName, this.exchangeName, bindingKey);
-            console.log({ rep })
-            console.log("created queue with binding key: ", bindingKey);
+            try {
+                // declare queue to bind to exhg
+                // empty queue name so rabbitmq or (any other amqp service) generates one for us
+                const queue = await this.channel!.assertQueue("", { exclusive: true });
+                const queueName = queue?.queue;
+    
+                // bind queue to exhange
+                await this.channel!.bindQueue(queueName, this.exchangeName, bindingKey);
+                this.declaredQueues?.push(queue);
+    
+                console.log(`created queue ${queueName} with binding key: bindingKey: ${bindingKey}`);
+            } catch (error) {
+                console.log("q error ", error)
+            }
         }
     }
 
     public async consumeMessage() {
         if (!this.channel) await this.createChannel();
-        let consumedMessage;
 
-        await this.channel!.consume(this.queue!.queue, (message) => {
-            if (!message) {
-                throw new Error("couldn't consume message.")
-            }
-
-            const { fields: { routingKey }, content } = message;
+        this.declaredQueues.forEach(async (queue) => {
+            await this.channel!.consume(queue!.queue, (message) => {
+                console.log("consuming")
+                if (!message)
+                    throw new Error("couldn't consume message.");
     
-            const consumer = this.consumerSet.get(routingKey);
-    
-            if (!consumer) throw new Error(`No Consumer for ${routingKey} key`);
-    
-            const payload = JSON.parse(content.toString());
-            consumer.handleMessage(payload);
+                const { fields: { routingKey }, content } = message;
+        
+                const consumer = this.consumerSet.get(routingKey);
+        
+                if (!consumer) throw new Error(`No Consumer for ${routingKey} key`);
+        
+                const payload = JSON.parse(content.toString());
+                consumer.handleMessage(payload);
 
-        }, { noAck: true });
+                 // logger    
+            }, { noAck: true });
+        });
 
-        return consumedMessage;
+       
     }
 }
