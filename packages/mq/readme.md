@@ -2,8 +2,19 @@ Notification Service
 
 Typically, there could be multiple processes in a notification service. But in this application I created 2 for handling emails and short messages (sms);
 
-Exchanges
+Exchange
+Naming Convention: Each exhg aligns with the names of the service that utilizes them. The name of each exchange indicates the relationship between two or mulitple services, which is useful to identify the association of each service as producer and consumer(s) interacting with an exchange. This way it is decriptive and easy to identify for maintaince (to track issues or just understand the system). For example 
+Type: The type of each exchange depends on the communcation between systems which could also determine how routing key(s) are defined. For example, if the auth micro-service sends several messages to the notification micro-service to perform sms and email delivery actions, then a topic exchange will be most suitable. This is because of the following 
+- it allows for mulitple message routing; i.e it allows to route messages to queues based on different criteria.
+- different routing keys can be set up for different notification actions
+Auth -> Notification Scenario;
+- When the authentication service wants to trigger the notification service to send an OTP via SMS, it can publish a message with a routing key like "notification.sms."\
 
+- When it wants to trigger the notification service to send an email, it can use a different routing key like "notification.email."
+
+- The notification service has queues bound to the Topic Exchange with bindings that match these routing keys.
+    
+- The notification service can process messages based on the routing keys, distinguishing between SMS and email notifications.
 
 Queues
 Used two different queues to handle the messages from the exchange, namely;

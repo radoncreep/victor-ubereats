@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "tsconfig": "*",
-    "twilio": "^4.18.0"
+    "twilio": "^4.18.0",
+    "mq-service-pkg": "*"
   }
 }

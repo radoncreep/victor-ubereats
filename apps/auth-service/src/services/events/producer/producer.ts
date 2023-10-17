@@ -1,45 +1,44 @@
-import amqplib, { Channel, Connection } from "amqplib";
+import { BaseAMQProducer, ExchangeObject } from "mq-service-pkg/src/producers";
+import amqplib from "amqplib";
+import { EmailPayload, Message, SmsPayload } from "mq-service-pkg";
+
 
 type ExchangeType = "direct" | "fanout" | "topic" | "headers";
 
-interface Message {
-    routingKey: string;
-    payload: any;
+type RoutingKey = "sms" | "email";
+
+export type AuthNotificationEvent<P extends RoutingKey> = {
+    routingKey: string,
+    payload: P extends "sms" ? SmsPayload : EmailPayload;
 }
 
-enum Subjects {
-    SendOneTimePassword = "send:otp"
-}
-
-export class AMQProducer {
-    private readonly URI: string = process.env.RABBITMQ_URI as string;
-    private client: Connection;
-    private channel: Channel;
-    private exchangeName = "notification";
+export class AMQProducer extends BaseAMQProducer  {
+    protected readonly URI = "amqp://localhost";
+    protected readonly exchange: ExchangeObject = {
+        name: "auth.notification",
+        type: "topic"
+    }
 
     public async createChannel() {
         const connection = await amqplib.connect(this.URI);
         this.channel = await connection.createChannel();
-        console.log("Channel Created.")
+        console.log(`Channel for Auth:Notification Created.`)
     }
 
-    public async publishMessage(payload: any, routingKey: string) {
+    public async publishMessage<P>(msg: Message<P>) {
         if (!this.channel) await this.createChannel();
 
         // create an exchange and define the rule of message delivery to queue
         // by defining the exchange type
-        const exchangeType: ExchangeType = "direct";
-        await this.channel.assertExchange(this.exchangeName, exchangeType, { 
+        await this.channel.assertExchange(this.exchange.name, this.exchange.type, { 
             durable: false
         });
 
+        const message = Buffer.from(JSON.stringify(msg));
+        const routingKey = msg.messageSubject;
 
-        // 
-        const message: Message = { routingKey, payload };
-
+        console.log("published")
         // publish message to auth exchange
-        this.channel.publish(this.exchangeName, routingKey, Buffer.from(
-            JSON.stringify(message)
-        ));
+        this.channel.publish(this.exchange.name, routingKey, message);
     }
 }

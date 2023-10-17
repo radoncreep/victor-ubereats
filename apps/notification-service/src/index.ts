@@ -22,12 +22,13 @@ app.listen(PORT, async () => {
 
     const smsHandler = new SmsQueueMessageHandler(new TwilioSmsServce);
     const emailHandler = new EmailQueueMessageHandler(new EmailService);
+    console.log("uri" ,process.env.RABBITMQ_URI)
 
     await new AMQPConsumer({
         uri: process.env.RABBITMQ_URI as string,
         exchange: { 
-            name: "notification", 
-            type: "direct" 
+            name: "auth.notification", 
+            type: "topic" 
         },
         messageHandlers: [
             emailHandler, 

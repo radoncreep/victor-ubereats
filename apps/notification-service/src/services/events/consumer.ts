@@ -40,6 +40,8 @@ export class AMQPConsumer {
             await this.declareExchange();
             await this.bindQueues();
             await this.consumeMessage();
+
+            console.log("setup complete")
         } catch (error) {
             console.log("Queue Setup Error: ")
             console.log(error);
@@ -47,6 +49,7 @@ export class AMQPConsumer {
     }
 
     private async createChannel() {
+        console.log("uri ", this.config.uri)
         const connection = await amqplib.connect(this.config.uri);
         this.channel = await connection.createChannel();
     }
@@ -95,6 +98,7 @@ export class AMQPConsumer {
                     throw new Error("couldn't consume message.");
     
                 const { fields: { routingKey }, content } = message;
+                console.log({ routingKey })
         
                 const consumer = this.messageHandlers.get(routingKey);
         
@@ -106,7 +110,5 @@ export class AMQPConsumer {
                  // logger    
             }, { noAck: true });
         });
-
-       
     }
 }
