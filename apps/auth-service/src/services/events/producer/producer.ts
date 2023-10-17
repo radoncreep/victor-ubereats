@@ -33,6 +33,8 @@ export class AMQProducer {
             durable: false
         });
 
+
+        // 
         const message: Message = { routingKey, payload };
 
         // publish message to auth exchange
