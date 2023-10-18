@@ -44,4 +44,8 @@ router.post("/submit/phone",
     catchAsyncErrors(customerController.submitPhone)
 );
 
+router.post("/submit/email", 
+    catchAsyncErrors(customerController.submitEmail)
+);
+
 export { router as customerRoutes };
