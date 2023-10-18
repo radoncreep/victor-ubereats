@@ -10,8 +10,9 @@ export class EmailQueueMessageHandler implements QueueMessageHandlerInterface {
     constructor(private emailService: EmailServiceInterface) {}
 
     handleMessage(message: Message<EmailPayload>): void {
-        console.log({ message })
+        // console.log({ message })
         const { payload: { sender, receipient, emailOptions} } = message;
+        console.log({ sender, receipient })
         
         if (!sender.email || !receipient.email || !emailOptions.content) {
             throw new Error("Invalid SMS Payload");

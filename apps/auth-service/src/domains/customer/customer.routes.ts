@@ -44,6 +44,10 @@ router.post("/submit/phone",
     catchAsyncErrors(customerController.submitPhone)
 );
 
+router.post("/verify/phone", 
+    catchAsyncErrors(customerController.verifyPhone)
+);
+
 router.post("/submit/email", 
     catchAsyncErrors(customerController.submitEmail)
 );

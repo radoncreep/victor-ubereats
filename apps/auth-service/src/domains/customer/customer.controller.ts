@@ -63,26 +63,49 @@ export class CustomerController {
         return res.json({ success: true, payload: result });
     }
 
+    verifyPhone = async (req: Request, res: Response, next: NextFunction) => {
+        const { phoneNumber, oneTimePassword } = req.body;
+
+        if (!phoneNumber || !oneTimePassword) {
+            throw new Error("Invalid requests");
+        }
+
+        const cachedOtp = await this.cacheService.get(phoneNumber);
+
+        if (oneTimePassword !== cachedOtp) {
+            return res.status(400).json({ success: false, error: "Incorrect code."});
+        }
+
+        this.cacheService.delete(phoneNumber);
+
+        return res.json({ success: true, payload: phoneNumber });
+    }
+
+
     submitEmail = async (req: Request, res: Response, next: NextFunction) => {
         const { email } = req.body;
 
-        this.mqService.publishMessage<EmailPayload>({
-            messageSubject: EmailPayloadCommand.SendRegistrationStatus,
-            timestamp: new Date(),
-            messageType: "command",
-            payload: {
-                command: EmailPayloadCommand.SendRegistrationStatus,
-                receipient: { email },
-                sender: { email: process.env.SERVICE_EMAIL },
-                emailOptions: {
-                    bulk: false,
-                    content: "Your ",
-                    subject: "Registration"
-                }
-            },
-            producer: "auth",
-            consumer: "notification"
-        })
+        try {
+            this.mqService.publishMessage<EmailPayload>({
+                messageSubject: EmailPayloadCommand.SendRegistrationStatus,
+                timestamp: new Date(),
+                messageType: "command",
+                payload: {
+                    command: EmailPayloadCommand.SendRegistrationStatus,
+                    receipient: { email },
+                    sender: { email: process.env.SERVICE_EMAIL },
+                    emailOptions: {
+                        bulk: false,
+                        content: "Your ",
+                        subject: "Registration"
+                    }
+                },
+                producer: "auth",
+                consumer: "notification"
+            })
+        } catch (error) {
+            console.log({ error })
+        }
 
         return res.json({ success: true, payload: null });
     }

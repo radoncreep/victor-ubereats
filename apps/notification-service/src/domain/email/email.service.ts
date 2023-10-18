@@ -33,6 +33,6 @@ export class EmailService implements EmailServiceInterface {
                 }]
             });
         
-        console.log({ response: response.body });
+        console.log(response);
     }
 }
