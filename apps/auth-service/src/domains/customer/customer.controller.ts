@@ -9,6 +9,8 @@ import { PhoneInterface } from "../../services/phone/phone.interface";
 import { DatabaseInterface, UserRoles } from "ubereats-types";
 import { CacheInterface } from "ubereats-cache-pkg";
 import { AMQProducer } from "../../services/events/producer/producer";
+import { EmailPayloadCommand, SmsPayloadCommand } from "mq-service-pkg/src/constants";
+import { EmailPayload, SmsPayload } from "mq-service-pkg";
 
 
 export type NewCustomerReqPayload = Omit<NewCustomerSchema, "customerId">;
@@ -43,12 +45,46 @@ export class CustomerController {
         if (!result) throw new Error("Server Error: Cache");
  
         // publish message to the notification service attaching the routing key and message content(country code + phone token) 
-        const messageBody = `Use code ${oneTimePassword} to verify Ubereats Account.`;
-        const message = { phoneNumber: validPhone, messageBody };
-        const routingKey = "sms"
-        this.mqService.publishMessage(message, routingKey);
+        // const messageBody = `Use code ${oneTimePassword} to verify Ubereats Account.`;
+        // const message = { phoneNumber: validPhone, messageBody };
+        this.mqService.publishMessage<SmsPayload>({
+            messageSubject: SmsPayloadCommand.SendOtp,
+            timestamp: new Date(),
+            messageType: "command",
+            producer: "auth",
+            consumer: "notification",
+            payload: {
+                customerPhone: validPhone,
+                oneTimePassword,
+                command: SmsPayloadCommand.SendOtp
+            },
+        });
 
         return res.json({ success: true, payload: result });
+    }
+
+    submitEmail = async (req: Request, res: Response, next: NextFunction) => {
+        const { email } = req.body;
+
+        this.mqService.publishMessage<EmailPayload>({
+            messageSubject: EmailPayloadCommand.SendRegistrationStatus,
+            timestamp: new Date(),
+            messageType: "command",
+            payload: {
+                command: EmailPayloadCommand.SendRegistrationStatus,
+                receipient: { email },
+                sender: { email: process.env.SERVICE_EMAIL },
+                emailOptions: {
+                    bulk: false,
+                    content: "Your ",
+                    subject: "Registration"
+                }
+            },
+            producer: "auth",
+            consumer: "notification"
+        })
+
+        return res.json({ success: true, payload: null });
     }
 
     create = async (req: Request, res: Response, next: NextFunction) => {

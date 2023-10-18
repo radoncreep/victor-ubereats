@@ -23,6 +23,7 @@
     "randomatic": "^3.1.1",
     "ubereats-types": "*",
     "tsconfig": "*",
-    "ubereats-cache-pkg": "*"
+    "ubereats-cache-pkg": "*",
+    "mq-service-pkg": "*"
   }
 }

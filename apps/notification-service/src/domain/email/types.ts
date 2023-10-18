@@ -1,15 +1,9 @@
 export type ReceipentDetails = {
-    firstname: string;
-    lastname: string;
     email: string;
-    phone: string;
 }
 
 export type SenderDetails = {
-    firstname: string;
-    lastname?: string;
     email: string;
-    phone?: string;
 }
 
 type IsBulkMail = boolean;
