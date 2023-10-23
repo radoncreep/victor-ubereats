@@ -36,7 +36,7 @@ export class CustomerController {
 
         const validPhone = this.phoneService.createValidPhone({ countryCode, localNumber });
 
-        const oneTimePassword = +this.otpService.generate({ length: 6, pattern: "numeric" });
+        const oneTimePassword = +this.otpService.generate({ length: 4, pattern: "numeric" });
 
         const result = await this.cacheService.set(validPhone, oneTimePassword, {
             expiry: '30000'
@@ -84,6 +84,7 @@ export class CustomerController {
 
     submitEmail = async (req: Request, res: Response, next: NextFunction) => {
         const { email } = req.body;
+        console.log({ body: req.body })
 
         try {
             this.mqService.publishMessage<EmailPayload>({
@@ -96,8 +97,8 @@ export class CustomerController {
                     sender: { email: process.env.SERVICE_EMAIL },
                     emailOptions: {
                         bulk: false,
-                        content: "Your ",
-                        subject: "Registration"
+                        content: "Hey Lamb Chops, Welcome Onboard",
+                        subject: "Welcome To Ubereats"
                     }
                 },
                 producer: "auth",
@@ -134,12 +135,12 @@ export class CustomerController {
             // send an email
             // or notification or both (asynchronously)
 
-            const accessToken = this.tokenService.sign(newCustomer);
-            const refreshToken = this.tokenService.sign({
+            const accessToken = this.tokenService.createAccessToken(newCustomer);
+            const refreshToken = this.tokenService.createRefreshToken({
                 customerId: newCustomer.customerId, 
                 email: newCustomer.email
             });
-
+  
             return res
                 .status(201)
                 .json({ success: true, payload: {accessToken, refreshToken} });
