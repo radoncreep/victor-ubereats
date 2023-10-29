@@ -9,7 +9,7 @@ const insertUserSchema = createInsertSchema(customers, {
     firstname: (schema) => schema.firstname.nonempty().trim().min(3),
     lastname: (schema) => schema.lastname.nonempty().trim().min(3),
     email: (schema) => schema.email.email(),
-    phone: (schema) => schema.phone.nonempty().trim().max(11).min(10),
+    phone: (schema) => schema.phone.nonempty().trim().max(15).min(10),
     password: (schema) => schema.password.nonempty().min(4),
     // deliveryAddress: z.infer()
 })

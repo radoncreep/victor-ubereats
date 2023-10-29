@@ -1,16 +1,23 @@
 import { Request, Response, NextFunction } from "express";
 import { v4 as uuid4 } from "uuid";
+import { 
+    DatabaseInterface, 
+    UserRoles, 
+    EmailQueueMessageSubject, 
+    EmailQueueMessage, 
+    CreateAccountEmailPayload,
+    SmsQueueMessage,
+    SmsPayloadCommand,
+    SmsOtpPayload
+} from "ubereats-types";
+import { CacheInterface } from "ubereats-cache-pkg";
 
 import { CustomerSchema, NewCustomerSchema } from "./customer.schema";
 import { PasswordService } from "../../services/password/password.service";
 import { ITokenManager } from "../../services/jwt/jwt.interface";
 import { OneTimePasswordInterface } from "../../services/oneTimePassword/otp.interface";
 import { PhoneInterface } from "../../services/phone/phone.interface";
-import { DatabaseInterface, UserRoles } from "ubereats-types";
-import { CacheInterface } from "ubereats-cache-pkg";
 import { AMQProducer } from "../../services/events/producer/producer";
-import { EmailPayloadCommand, SmsPayloadCommand } from "mq-service-pkg/src/constants";
-import { EmailPayload, SmsPayload } from "mq-service-pkg";
 
 
 export type NewCustomerReqPayload = Omit<NewCustomerSchema, "customerId">;
@@ -36,7 +43,7 @@ export class CustomerController {
 
         const validPhone = this.phoneService.createValidPhone({ countryCode, localNumber });
 
-        const oneTimePassword = +this.otpService.generate({ length: 6, pattern: "numeric" });
+        const oneTimePassword = +this.otpService.generate({ length: 4, pattern: "numeric" });
 
         const result = await this.cacheService.set(validPhone, oneTimePassword, {
             expiry: '30000'
@@ -45,10 +52,10 @@ export class CustomerController {
         if (!result) throw new Error("Server Error: Cache");
  
         // publish message to the notification service attaching the routing key and message content(country code + phone token) 
-        // const messageBody = `Use code ${oneTimePassword} to verify Ubereats Account.`;
-        // const message = { phoneNumber: validPhone, messageBody };
-        this.mqService.publishMessage<SmsPayload>({
-            messageSubject: SmsPayloadCommand.SendOtp,
+        const messageBody = `Use code ${oneTimePassword} to verify Ubereats Account.`;
+        const message = { phoneNumber: validPhone, messageBody };
+        this.mqService.publishMessage<SmsQueueMessage<SmsOtpPayload>>({
+            subject: SmsPayloadCommand.SendOtp,
             timestamp: new Date(),
             messageType: "command",
             producer: "auth",
@@ -56,33 +63,49 @@ export class CustomerController {
             payload: {
                 customerPhone: validPhone,
                 oneTimePassword,
-                command: SmsPayloadCommand.SendOtp
             },
         });
 
         return res.json({ success: true, payload: result });
     }
 
+    verifyPhone = async (req: Request, res: Response, next: NextFunction) => {
+        const { phoneNumber, oneTimePassword } = req.body;
+
+        if (!phoneNumber || !oneTimePassword) {
+            throw new Error("Invalid requests");
+        }
+
+        const cachedOtp = await this.cacheService.get(phoneNumber);
+
+        if (oneTimePassword !== cachedOtp) {
+            return res.status(400).json({ success: false, error: "Incorrect code."});
+        }
+
+        this.cacheService.delete(phoneNumber);
+
+        return res.json({ success: true, payload: phoneNumber });
+    }
+
+
     submitEmail = async (req: Request, res: Response, next: NextFunction) => {
         const { email } = req.body;
 
-        this.mqService.publishMessage<EmailPayload>({
-            messageSubject: EmailPayloadCommand.SendRegistrationStatus,
-            timestamp: new Date(),
-            messageType: "command",
-            payload: {
-                command: EmailPayloadCommand.SendRegistrationStatus,
-                receipient: { email },
-                sender: { email: process.env.SERVICE_EMAIL },
-                emailOptions: {
-                    bulk: false,
-                    content: "Your ",
-                    subject: "Registration"
-                }
-            },
-            producer: "auth",
-            consumer: "notification"
-        })
+        try {
+            this.mqService.publishMessage<EmailQueueMessage<CreateAccountEmailPayload>>({
+                subject: EmailQueueMessageSubject.CreateAccount,
+                timestamp: undefined,
+                messageType: "query",
+                payload: {
+                    verificationToken: "",
+                    receipient: email
+                },
+                producer: "",
+                consumer: ""
+            })
+        } catch (error) {
+            console.log({ error })
+        }
 
         return res.json({ success: true, payload: null });
     }
@@ -111,12 +134,12 @@ export class CustomerController {
             // send an email
             // or notification or both (asynchronously)
 
-            const accessToken = this.tokenService.sign(newCustomer);
-            const refreshToken = this.tokenService.sign({
+            const accessToken = this.tokenService.createAccessToken(newCustomer);
+            const refreshToken = this.tokenService.createRefreshToken({
                 customerId: newCustomer.customerId, 
                 email: newCustomer.email
             });
-
+  
             return res
                 .status(201)
                 .json({ success: true, payload: {accessToken, refreshToken} });

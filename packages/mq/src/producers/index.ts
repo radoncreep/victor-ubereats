@@ -1,5 +1,4 @@
 import amqplib, { Channel, Connection } from "amqplib";
-import { Message } from "../types";
 
 
 export type ExchangeType = "direct" | "fanout" | "topic";
@@ -15,5 +14,5 @@ export abstract class BaseAMQProducer {
 
     protected async createChannel(): Promise<void> {}
 
-    public async publishMessage<P>(message: Message<P>): Promise<void> {}
+    // public async publishMessage<P>(message: Message<P>): Promise<void> {}
 }

@@ -5,6 +5,6 @@ type Event = {
     payload: NotificationPayload<"email">
 }
 
-export class CustomerProducer extends BaseAMQProducer<Event> {
+// export class CustomerProducer extends BaseAMQProducer<Event> {
     
-}
+// }

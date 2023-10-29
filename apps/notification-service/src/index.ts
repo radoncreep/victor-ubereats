@@ -7,7 +7,8 @@ import { TwilioSmsServce } from "./domain/sms/sms.service";
 import { AMQPConsumer } from "./services/events/consumer";
 import { SmsQueueMessageHandler } from "./domain/sms/sms.consumer";
 import { EmailQueueMessageHandler } from "./domain/email/email.consumer";
-import { EmailService } from "./domain/email/email.service";
+import { MailjetSMTPService } from "./domain/email/services/smtp.service";
+import { CreateAccountEmailBuilder } from "./domain/email/services/create-account-email-handler";
 
 
 const app = express();
@@ -21,10 +22,11 @@ const PORT = process.env.PORT || 1014;
 app.listen(PORT, async () => { 
 
     const smsHandler = new SmsQueueMessageHandler(new TwilioSmsServce);
-    const emailHandler = new EmailQueueMessageHandler(new EmailService);
+    const emailHandler = new EmailQueueMessageHandler(new MailjetSMTPService);
+    emailHandler.setMailbuilders = new CreateAccountEmailBuilder;
     console.log("uri" ,process.env.RABBITMQ_URI)
 
-    await new AMQPConsumer({
+    const consumer = await new AMQPConsumer({
         uri: process.env.RABBITMQ_URI as string,
         exchange: { 
             name: "auth.notification", 
@@ -34,7 +36,8 @@ app.listen(PORT, async () => {
             emailHandler, 
             smsHandler
         ]
-    }).listen();
+    })
+    consumer.listen();
 
     console.log(`${process.env.SERVICE_NAME} Service is listening on port ${PORT}`);
 });

@@ -5,7 +5,7 @@ import { OneTimePasswordInterface, OtpConfig } from "./otp.interface";
 
 export class OneTimePasswordService implements OneTimePasswordInterface {
     private defaultConfig: OtpConfig = {
-        length: 6, 
+        length: 4, 
         pattern: "alphanumeric"
     }
 
