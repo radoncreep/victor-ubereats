@@ -10,13 +10,13 @@ import {
     SmsPayloadCommand,
     SmsOtpPayload
 } from "ubereats-types";
+import { CacheInterface } from "ubereats-cache-pkg";
 
 import { CustomerSchema, NewCustomerSchema } from "./customer.schema";
 import { PasswordService } from "../../services/password/password.service";
 import { ITokenManager } from "../../services/jwt/jwt.interface";
 import { OneTimePasswordInterface } from "../../services/oneTimePassword/otp.interface";
 import { PhoneInterface } from "../../services/phone/phone.interface";
-import { CacheInterface } from "ubereats-cache-pkg";
 import { AMQProducer } from "../../services/events/producer/producer";
 
 
