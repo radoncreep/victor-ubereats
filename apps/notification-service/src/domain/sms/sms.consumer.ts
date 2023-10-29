@@ -1,7 +1,6 @@
-import { SmsPayloadCommand } from "mq-service-pkg/src/constants";
+import { QueueMessage, SmsPayload, SmsPayloadCommand, SmsQueueMessage } from "ubereats-types";
 import { QueueMessageHandlerInterface } from "../../services/events/consumer.interface";
 import { SmsServiceInterface } from "./types";
-import { Message, SmsPayload } from "mq-service-pkg";
 
 
 export class SmsQueueMessageHandler implements QueueMessageHandlerInterface {
@@ -9,9 +8,11 @@ export class SmsQueueMessageHandler implements QueueMessageHandlerInterface {
 
     constructor(private smsService: SmsServiceInterface) {}
 
-    handleMessage(message: Message<SmsPayload>): void {
-        console.log({ message })
+    // TODO: Set enum of SMS and types for SMS
+    handleMessage(message: SmsQueueMessage<SmsPayload>): void {
+        // console.log({ message })
         const { payload: {customerPhone, oneTimePassword} } = message;
+        // const {} = message;
         
         if (!customerPhone) {
             throw new Error("Invalid SMS Payload");

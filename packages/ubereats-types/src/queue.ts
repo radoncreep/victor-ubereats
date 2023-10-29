@@ -1,8 +1,8 @@
-export type QueueMessage<P> = {
+export type QueueMessage = {
     subject: string;
     timestamp: Date;
     messageType: "command" | "query" | "event";
-    payload: P;
+    payload: unknown;
     producer: string;
     consumer: string;
 }

@@ -1,16 +1,7 @@
 import { BaseAMQProducer, ExchangeObject } from "mq-service-pkg/src/producers";
 import amqplib from "amqplib";
-import { EmailPayload, Message, SmsPayload } from "mq-service-pkg";
+import { QueueMessage } from "ubereats-types";
 
-
-type ExchangeType = "direct" | "fanout" | "topic" | "headers";
-
-type RoutingKey = "sms" | "email";
-
-export type AuthNotificationEvent<P extends RoutingKey> = {
-    routingKey: string,
-    payload: P extends "sms" ? SmsPayload : EmailPayload;
-}
 
 export class AMQProducer extends BaseAMQProducer  {
     protected readonly URI = "amqp://localhost";
@@ -25,7 +16,8 @@ export class AMQProducer extends BaseAMQProducer  {
         console.log(`Channel for Auth:Notification Created.`)
     }
 
-    public async publishMessage<P>(msg: Message<P>) {
+    // TODO: SET TYPE
+    public async publishMessage<P extends QueueMessage>(message: P) {
         if (!this.channel) await this.createChannel();
 
         // create an exchange and define the rule of message delivery to queue
@@ -34,11 +26,11 @@ export class AMQProducer extends BaseAMQProducer  {
             durable: false
         });
 
-        const message = Buffer.from(JSON.stringify(msg));
-        const routingKey = msg.messageSubject;
+        const bufferedMessage = Buffer.from(JSON.stringify(message));
+        const routingKey = message.subject;
 
-        console.log("published")
         // publish message to auth exchange
-        this.channel.publish(this.exchange.name, routingKey, message);
+        this.channel.publish(this.exchange.name, routingKey, bufferedMessage);
+        console.log(`published ${message.subject} messsage`)
     }
 }
