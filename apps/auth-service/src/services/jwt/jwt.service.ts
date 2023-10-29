@@ -16,7 +16,7 @@ export class TokenManager implements ITokenManager {
         if (this.token_secret == undefined) throw new Error("ServerError");
     }
 
-    sign(payload: UnsignedPayload) {
+    createAccessToken(payload: UnsignedPayload) {
         const signedPayload = jwt.sign(payload, this.token_secret!, {
             issuer: process.env.SERVICE_NAME,
             audience: "",
@@ -26,9 +26,20 @@ export class TokenManager implements ITokenManager {
         return signedPayload;
     }
 
-    verify(payload: SignedPayload) {
+    createRefreshToken(payload: UnsignedPayload) {
+        const signedPayload = jwt.sign(payload, this.token_secret!, {
+            issuer: process.env.SERVICE_NAME,
+            audience: "",
+        });
+
+        return signedPayload;
+    }
+
+    verifyAccessToken(payload: SignedPayload) {
         const decodedPayload = jwt.verify(payload, this.token_secret!);
 
-        return decodedPayload as jwt.JwtPayload;
+        if (typeof decodedPayload == "string") return null;
+
+        return decodedPayload
     }
 }

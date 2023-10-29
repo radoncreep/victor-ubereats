@@ -1,20 +1,24 @@
+import { SmsOtpPayload, SmsPayloadCommand, SmsQueueMessage } from "ubereats-types";
+
 import { QueueMessageHandlerInterface } from "../../services/events/consumer.interface";
 import { SmsServiceInterface } from "./types";
 
 
 export class SmsQueueMessageHandler implements QueueMessageHandlerInterface {
-    readonly messageType: string = "";
+    readonly bindingKey: string = SmsPayloadCommand.SendOtp;
 
     constructor(private smsService: SmsServiceInterface) {}
 
-    handleMessage(message: any): void {
-        console.log({ message })
-        const { payload: { phoneNumber, messageBody } } = message;
+    // TODO: Set enum of SMS and types for SMS
+    handleMessage(message: SmsQueueMessage<SmsOtpPayload>): void {
+        const { payload: {customerPhone, oneTimePassword} } = message;
         
-        if (!phoneNumber || !messageBody) {
+        if (!customerPhone) {
             throw new Error("Invalid SMS Payload");
         }
 
-        this.smsService.sendMessage({ phoneNumber, body: messageBody });
+        const messageBody = `Use code ${oneTimePassword} to verify Ubereats Account.`;
+
+        this.smsService.sendMessage({ phoneNumber: customerPhone, body: messageBody });
     }
 }

@@ -3,9 +3,9 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 
 const environment = process.env.NODE_ENV;
-console.log(environment)
 dotenv.config({ path: `.env.${environment}`});
 
+import { redisCacheClient } from "./config/cache/client";
 import app from "./app";
 import { dbClient } from "./config/db/client";
 import { AMQProducer } from "./services/events/producer/producer";
@@ -32,6 +32,7 @@ async function createDatabase() {
 
 (async () => {
     try {
+        await redisCacheClient.connect();
         await createDatabase();
 
         await migrate(drizzle(dbClient), { migrationsFolder: "migrations"});

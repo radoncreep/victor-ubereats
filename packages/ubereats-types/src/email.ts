@@ -1,3 +1,5 @@
+import { QueueMessage } from "./queue";
+
 export enum EmailQueueMessageSubject {
     CreateAccount = "CreateAccount",
     ResetPassword = "ResetPassword",
@@ -40,28 +42,21 @@ export interface OrderStatusEmailPayload extends BaseEmailPayload {
     feedback?: string
 }
 
-export interface EmailQueueMessage extends QueueMessage {
+export interface EmailQueueMessage<P> extends QueueMessage {
     subject: EmailQueueMessageSubject;
-}
-
-export type QueueMessage = {
-    subject: string;
-    timestamp: Date;
-    messageType: "command" | "query" | "event";
-    payload: unknown;
-    producer: string;
-    consumer: string;
+    payload: P;
 }
 
 // type PayloadOf<T extends {payload: unknown}> = T["payload"];
 
 // type EmailPayloadM = PayloadOf<EmailQueueMessage>;
-
-export interface IResponse {
-    success: boolean;
-}
-
 export interface EmailBuilder {
     readonly _builderName: EmailQueueMessageSubject;
     buildEmail(mailObject: BaseEmailPayload): BuiltEmailPayload;
+}
+
+export enum EmailPayloadCommand {
+    SendRegistrationStatus = "SendRegistrationStatus",
+    SendPromotionalMail = "SendPromotionalMail",
+    SendOrderStatus = "SendOrderStatus"
 }

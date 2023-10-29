@@ -1,5 +1,4 @@
 import { Router } from "express";
-import { RedisCacheService } from "ubereats-cache-pkg";
 
 import { PasswordService } from "../../services/password/password.service";
 import { CustomerController } from "./customer.controller";
@@ -10,6 +9,7 @@ import { PhoneService } from "../../services/phone/phone.service";
 import { OneTimePasswordService } from "../../services/oneTimePassword/otp.service";
 import { catchAsyncErrors } from "../../utility/errorHandler";
 import { AMQProducer } from "../../services/events/producer/producer";
+import { redisCacheClient } from "../../config/cache/client";
 
 const router = Router();
 
@@ -19,7 +19,7 @@ const customerController = new CustomerController(
     new TokenManager,
     new PhoneService,
     new OneTimePasswordService,
-    new RedisCacheService,
+    redisCacheClient,
     new AMQProducer
 );
 
@@ -42,6 +42,14 @@ router.delete("/",
 
 router.post("/submit/phone", 
     catchAsyncErrors(customerController.submitPhone)
+);
+
+router.post("/verify/phone", 
+    catchAsyncErrors(customerController.verifyPhone)
+);
+
+router.post("/submit/email", 
+    catchAsyncErrors(customerController.submitEmail)
 );
 
 export { router as customerRoutes };

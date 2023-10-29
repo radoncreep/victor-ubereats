@@ -25,7 +25,7 @@ export class TwilioSmsServce implements SmsServiceInterface {
                 to: payload.phoneNumber,
                 body: payload.body
             });
-            console.log(result)
+            // console.log(result)
     
             if (result.status === "failed") return { success: false };
         } catch (error) {
