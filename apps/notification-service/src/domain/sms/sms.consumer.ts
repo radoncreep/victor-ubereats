@@ -1,4 +1,5 @@
-import { QueueMessage, SmsPayload, SmsPayloadCommand, SmsQueueMessage } from "ubereats-types";
+import { SmsOtpPayload, SmsPayloadCommand, SmsQueueMessage } from "ubereats-types";
+
 import { QueueMessageHandlerInterface } from "../../services/events/consumer.interface";
 import { SmsServiceInterface } from "./types";
 
@@ -9,10 +10,8 @@ export class SmsQueueMessageHandler implements QueueMessageHandlerInterface {
     constructor(private smsService: SmsServiceInterface) {}
 
     // TODO: Set enum of SMS and types for SMS
-    handleMessage(message: SmsQueueMessage<SmsPayload>): void {
-        // console.log({ message })
+    handleMessage(message: SmsQueueMessage<SmsOtpPayload>): void {
         const { payload: {customerPhone, oneTimePassword} } = message;
-        // const {} = message;
         
         if (!customerPhone) {
             throw new Error("Invalid SMS Payload");

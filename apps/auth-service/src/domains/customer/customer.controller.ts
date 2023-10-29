@@ -5,8 +5,10 @@ import {
     UserRoles, 
     EmailQueueMessageSubject, 
     EmailQueueMessage, 
-    EmailPayloadCommand, 
-    CreateAccountEmailPayload
+    CreateAccountEmailPayload,
+    SmsQueueMessage,
+    SmsPayloadCommand,
+    SmsOtpPayload
 } from "ubereats-types";
 
 import { CustomerSchema, NewCustomerSchema } from "./customer.schema";
@@ -50,20 +52,19 @@ export class CustomerController {
         if (!result) throw new Error("Server Error: Cache");
  
         // publish message to the notification service attaching the routing key and message content(country code + phone token) 
-        // const messageBody = `Use code ${oneTimePassword} to verify Ubereats Account.`;
-        // const message = { phoneNumber: validPhone, messageBody };
-        // this.mqService.publishMessage<SmsPayload>({
-        //     messageSubject: SmsPayloadCommand.SendOtp,
-        //     timestamp: new Date(),
-        //     messageType: "command",
-        //     producer: "auth",
-        //     consumer: "notification",
-        //     payload: {
-        //         customerPhone: validPhone,
-        //         oneTimePassword,
-        //         command: SmsPayloadCommand.SendOtp
-        //     },
-        // });
+        const messageBody = `Use code ${oneTimePassword} to verify Ubereats Account.`;
+        const message = { phoneNumber: validPhone, messageBody };
+        this.mqService.publishMessage<SmsQueueMessage<SmsOtpPayload>>({
+            subject: SmsPayloadCommand.SendOtp,
+            timestamp: new Date(),
+            messageType: "command",
+            producer: "auth",
+            consumer: "notification",
+            payload: {
+                customerPhone: validPhone,
+                oneTimePassword,
+            },
+        });
 
         return res.json({ success: true, payload: result });
     }
