@@ -24,7 +24,6 @@ app.listen(PORT, async () => {
     const smsHandler = new SmsQueueMessageHandler(new TwilioSmsServce);
     const emailHandler = new EmailQueueMessageHandler(new MailjetSMTPService);
     emailHandler.setMailbuilders = new CreateAccountEmailBuilder;
-    console.log("uri" ,process.env.RABBITMQ_URI)
 
     const consumer = await new AMQPConsumer({
         uri: process.env.RABBITMQ_URI as string,
