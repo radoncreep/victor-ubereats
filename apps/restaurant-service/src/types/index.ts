@@ -18,12 +18,12 @@ export type SuccessResponse<T> = {
 
 export type ControllerResponse<T> = Promise<SuccessResponse<T> | void>;
 
-export interface DatabaseInterface <E> {
-    create(payload: E): Promise<E>;
-    getById(id: string): Promise<E | null>;
-    getMany(limit: number, page: number): Promise<E[] | null>;
+export interface DatabaseInterface <P, R> {
+    create(payload: P): Promise<R>;
+    getById(id: string): Promise<R | null>;
+    getMany(limit: number, page: number): Promise<R[] | null>;
     delete(id: string): void;
-    update(id: string, payload: E): Promise<E | null>;
+    update(id: string, payload: P): Promise<R | null>;
     count(): Promise<number>;
 }
 

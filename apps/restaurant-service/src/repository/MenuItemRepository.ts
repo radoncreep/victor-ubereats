@@ -2,19 +2,19 @@ import { and, eq, sql } from "drizzle-orm";
 import { v4 as uuid4 } from "uuid";
 import { drizzle } from "drizzle-orm/node-postgres";
 
-import { MenuItemSchema, menuitems } from "../schema/menuItem";
+import { MenuItemSchema, NewMenuItemSchema, NewNoIdMenuItemSchema, menuitems } from "../schema/menuItem";
 import { DatabaseInterface, MenuItem } from "../types";
 import { dbClient } from "../config/database";
 import { isEmpty } from "../utils/helpers";
 
 
-export class MenuItemRepository implements DatabaseInterface<MenuItem> {
+export class MenuItemRepository implements DatabaseInterface<NewNoIdMenuItemSchema, MenuItem> {
     private readonly db: ReturnType<typeof drizzle> =  drizzle(dbClient);
     private readonly entity: typeof menuitems = menuitems;
 
     constructor() {}
 
-    async create(payload: MenuItemSchema): Promise<MenuItem> {
+    async create(payload: NewNoIdMenuItemSchema): Promise<MenuItem> {
         const result = await this.db
             .insert(this.entity)
             .values({...payload, id: uuid4()})

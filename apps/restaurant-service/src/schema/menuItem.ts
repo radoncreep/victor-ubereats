@@ -23,3 +23,4 @@ export const menuitemsRelations = relations(menuitems, ({ one }) => ({
 
 export type NewMenuItemSchema = typeof menuitems.$inferInsert;
 export type MenuItemSchema = typeof menuitems.$inferSelect;
+export type NewNoIdMenuItemSchema = Omit<NewMenuItemSchema, "id">;

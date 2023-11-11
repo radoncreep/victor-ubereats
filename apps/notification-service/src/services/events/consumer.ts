@@ -13,6 +13,7 @@ type AMQPConsumerConfig = {
     messageHandlers: QueueMessageHandlerInterface[]
 }
 
+// TODO: Use template method, so listen is a template method and others are concrete
 export class AMQPConsumer {
     private channel: Channel | undefined;
     // private exchangeName = "notification";

@@ -2,19 +2,20 @@ import { Request, Response, NextFunction } from "express";
 
 import { ControllerResponse, DatabaseInterface, MenuItem } from "../types";
 import { isEmpty } from "../utils/helpers";
+import { NewNoIdMenuItemSchema } from "../schema/menuItem";
 
+
+type T = DatabaseInterface<NewNoIdMenuItemSchema, MenuItem>;
 
 export class MenuItemController {
-    private readonly repository;
+    private readonly repository: T;
 
-    constructor(repository: DatabaseInterface<MenuItem>) {
+    constructor(repository: T) {
         this.repository = repository;
     }
 
     getById = async (req: Request, res: Response, next: NextFunction) => {
         const result = await this.repository.getById(req.params.menuItemId);
-
-        console.log({result})
 
         return res.json({
             success: true,
@@ -42,7 +43,9 @@ export class MenuItemController {
     }
 
     create = async (req: Request, res: Response, next: NextFunction) =>{
-        const payload = req.body;
+        const payload = req.body as NewNoIdMenuItemSchema;
+
+        // image upload
         
         try {
             const result = await this.repository.create(payload);
