@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "pg",
-  "id": "25109a7f-14ef-4298-af97-84a8c53cb530",
+  "id": "be1bfda6-58a4-4f5e-9419-975fcb95724d",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "menuitems": {
@@ -127,11 +127,18 @@
           "notNull": false,
           "default": 0
         },
-        "image": {
-          "name": "image",
+        "main_image": {
+          "name": "main_image",
           "type": "text",
           "primaryKey": false,
           "notNull": true
+        },
+        "featured_images": {
+          "name": "featured_images",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'[]'::json"
         },
         "created_at": {
           "name": "created_at",
