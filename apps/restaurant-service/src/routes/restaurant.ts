@@ -1,8 +1,20 @@
 import { Router } from "express";
 
-import { restaurantController } from "../controllers/restaurant";
+import RestaurantController from "../controllers/restaurant";
 import { validateUUID, validationPipe } from "../middleware/validations/pipes";
 import { authorizeRole } from "../middleware/rbac/authorization";
+import multer from "multer";
+import ImageService from "../services/image/ImageService";
+import CloudinaryImageStorage from "../services/image/ImageStorage";
+import { catchAsyncErrors } from "../utils/helpers";
+
+const restaurantController = new RestaurantController(
+    new ImageService(new CloudinaryImageStorage, null)
+);
+
+const upload = multer({ 
+    limits: { fieldSize: 1000000 }
+});
 
 const router = Router();
 
@@ -13,13 +25,13 @@ router.get("", restaurantController.getMany);
 router.post(
     "",
     // authorizeRole, 
-    validationPipe, 
-    restaurantController.create
+    // validationPipe, 
+    upload.single("image"),
+    catchAsyncErrors(restaurantController.create)
 );
 
 router.put(
     "/:id", 
-    // authorizeRole, 
     validationPipe,
     restaurantController.update
 );

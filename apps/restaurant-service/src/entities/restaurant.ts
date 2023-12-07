@@ -8,7 +8,7 @@ export type RestaurantAddress = {
 
 export type RestaurantLocation = Location;
 
-export type Cusine = string;
+export type Cuisine = string;
 
 export type Day = "monday" | "tuesday" | "wednesday" | "thursday" | "friday" | "saturday" | "sunday";
 export type DaySchedule = "open" | "close";

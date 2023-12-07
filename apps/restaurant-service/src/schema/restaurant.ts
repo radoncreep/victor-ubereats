@@ -1,11 +1,16 @@
 import { text, timestamp, pgTable, json, integer, uuid } from "drizzle-orm/pg-core";
 import { z } from "zod";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
-
-import { RestaurantAddress, RestaurantLocation, Cusine, OpeningHours } from "../entities/restaurant";
 import { relations } from "drizzle-orm";
+
+import { RestaurantAddress, RestaurantLocation, Cuisine, OpeningHours } from "../entities/restaurant";
 import { menuitems } from "./menuItem";
 
+export type DbImage = {
+  id: string;
+  name?: string;
+  url: string;
+}
 
 export const restaurants = pgTable("restaurants", {
   id: uuid("id").primaryKey().notNull().defaultRandom(),
@@ -14,10 +19,11 @@ export const restaurants = pgTable("restaurants", {
   address: json("address").notNull().$type<RestaurantAddress>(),
   location: json("location").default({ location: 0.0, longitude: 0.0 }).$type<RestaurantLocation>(),
   phone: text("phone").notNull().unique(),
-  cuisines: json("cusines").default([]).$type<Cusine[]>(),
+  cuisines: json("cusines").default([]).$type<Cuisine[]>(),
   opening_hours: json("opening_hours").default({ monday: { open: "9:00", close: "18:00"}}).$type<OpeningHours>(),
   rating: integer("rating").default(0),
-  image: text("image").notNull(), 
+  mainImage: text("main_image").notNull().$type<DbImage>(), 
+  featured_images: json("featured_images").default([]).$type<DbImage>(),
   createdAt: timestamp("created_at"),
   updatedAt: timestamp("updated_at"),
 });

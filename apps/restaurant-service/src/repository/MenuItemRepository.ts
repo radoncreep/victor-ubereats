@@ -4,12 +4,12 @@ import { drizzle } from "drizzle-orm/node-postgres";
 
 import { MenuItemSchema, NewMenuItemSchema, NewNoIdMenuItemSchema, menuitems } from "../schema/menuItem";
 import { DatabaseInterface, MenuItem } from "../types";
-import { dbClient } from "../config/database";
+import { nodePgconnection } from "../config/database";
 import { isEmpty } from "../utils/helpers";
 
 
 export class MenuItemRepository implements DatabaseInterface<NewNoIdMenuItemSchema, MenuItem> {
-    private readonly db: ReturnType<typeof drizzle> =  drizzle(dbClient);
+    private readonly db: ReturnType<typeof drizzle> =  drizzle(nodePgconnection);
     private readonly entity: typeof menuitems = menuitems;
 
     constructor() {}

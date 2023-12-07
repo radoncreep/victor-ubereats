@@ -3,16 +3,14 @@ import { and, eq, sql } from "drizzle-orm";
 import { v4 as uuid4 } from "uuid";
 
 import { RestaurantSchema, restaurants } from "../schema/restaurant";
-import { db, dbClient } from "../config/database";
+import { databaseClient as db } from "../config/database";
 import { isEmpty } from "../utils/helpers";
+import BaseImageService from "../services/image/BaseImageService";
 
 
-class RestaurantController {
-    // private repository: DatabaseInterface<RestaurantSchema>;
+export default class RestaurantController {
 
-    constructor() {
-        // this.repository = new MenuItemRepository(dbClient);
-    }
+    constructor(private readonly imageService: BaseImageService) {}
 
     async getById(req: Request, res: Response, next: NextFunction): Promise<Response<RestaurantSchema> | void> {
         const { id: restaurantId } = req.params;
@@ -62,10 +60,10 @@ class RestaurantController {
         }
     }
 
-    async create(req: Request, res: Response, next: NextFunction) {        
-        const payload = req.body;
+    create = async (req: Request, res: Response, next: NextFunction) => {   
+        const { body: payload, file: imageFile } =  req; 
 
-        const nameExists = await db.select()
+        const existingRestaurant = await db.select()
             .from(restaurants)
             .where(
                 and(
@@ -74,30 +72,40 @@ class RestaurantController {
                 )
             );
 
-        if (!isEmpty(nameExists)) {
+        if (!isEmpty(existingRestaurant)) {
             const error = new Error();
             error.message = "restaurant name already exists.";
             next(error);
             return;
         }
 
-        try { 
-            // upload image from request to a cdn or bucket - ImageUploadService
+        // upload main image from request to a cdn or bucket - ImageUploadService
+        const restaurantName = payload.name;
+        const folder = `restaurants/${restaurantName}`;
+        const savedImage = await this.imageService.save({
+            name: imageFile.originalname || imageFile.filename,
+            mimetype: imageFile.mimetype,
+            buffer: imageFile.buffer,
+            size: imageFile.size,
+            type: "main",
+            folder
+        });
 
-            const data = await db
-                .insert(restaurants)
-                .values({...payload, id: uuid4()})
-                .returning({ id: restaurants.id });
+        console.log({ savedImage })
 
-            // event for created restaurant event or pubsub
-            // this can serve as duplicating the restaurant db on the users 
-            // to keep of user's favourite restaurants or the other way around
-            // the other way around so the user service doesnt have duplicates of all entity it references
-            // and each service (if related) can have a duplicate of user instead
-            return res.status(201).send({success: true, payload: data});
-        } catch (error) {
-            next(error);
-        }
+        const data = await db
+            .insert(restaurants)
+            .values({...payload, id: uuid4(), mainImage: savedImage })
+            .returning({ id: restaurants.id });
+
+        /** 
+         * event for created restaurant event or pubsub
+         * this can serve as duplicating the restaurant db on the users 
+         * to keep of user's favourite restaurants or the other way around
+         * the other way around so the user service doesnt have duplicates of all entity it references
+         * and each service (if related) can have a duplicate of user instead
+        */
+        return res.status(201).json({success: true, payload: data[0] });
     }
 
     async update(req: Request, res: Response, next: NextFunction) {
@@ -147,7 +155,5 @@ class RestaurantController {
         }
     }
 }
-
-export const restaurantController = new RestaurantController();
 
 // code to check for existence is repeated
