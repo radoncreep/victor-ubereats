@@ -1,16 +1,18 @@
-import { text, timestamp, pgTable, json, integer, uuid } from "drizzle-orm/pg-core";
+import { text, timestamp, pgTable, json, integer, uuid, pgSchema } from "drizzle-orm/pg-core";
 import { z } from "zod";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { relations } from "drizzle-orm";
 
 import { RestaurantAddress, RestaurantLocation, Cuisine, OpeningHours } from "../entities/restaurant";
 import { menuitems } from "./menuItem";
+import { createCheckSchema } from "express-validator/src/middlewares/schema";
 
 export type DbImage = {
   id: string;
   name?: string;
   url: string;
 }
+
 
 export const restaurants = pgTable("restaurants", {
   id: uuid("id").primaryKey().notNull().defaultRandom(),
@@ -24,8 +26,8 @@ export const restaurants = pgTable("restaurants", {
   rating: integer("rating").default(0),
   mainImage: text("main_image").notNull().$type<DbImage>(), 
   featured_images: json("featured_images").default([]).$type<DbImage>(),
-  createdAt: timestamp("created_at"),
-  updatedAt: timestamp("updated_at"),
+  createdAt: timestamp("created_at").$default(() => new Date()),
+  updatedAt: timestamp("updated_at").$default(() => new Date()),
 });
 
 export const restaurantRelations = relations(restaurants, ({ many }) => ({
@@ -69,6 +71,13 @@ export const insertRestaurantSchema = createInsertSchema(restaurants, {
   })
   // image: (schema) => schema.image.
 });
+
+export const uniqueRestaurantFields = createSelectSchema(restaurants, {
+  name: (schema) => schema.name.nonempty().trim().min(3),
+  phone: (schema) => schema.phone.min(10).max(11)
+})
+
+// export const deleteRestaurantSchema = createCheckSchema((fields) => )
 
 export type RestaurantSchema = typeof restaurants.$inferSelect;
 export type NewRestaurantSchema = typeof restaurants.$inferInsert;

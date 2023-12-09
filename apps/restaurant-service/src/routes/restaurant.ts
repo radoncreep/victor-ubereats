@@ -1,15 +1,17 @@
 import { Router } from "express";
 
 import RestaurantController from "../controllers/restaurant";
-import { validateUUID, validationPipe } from "../middleware/validations/pipes";
+import { deleteOneValidation, validateUUID, validationPipe } from "../middleware/validations/pipes";
 import { authorizeRole } from "../middleware/rbac/authorization";
 import multer from "multer";
 import ImageService from "../services/image/ImageService";
 import CloudinaryImageStorage from "../services/image/ImageStorage";
 import { catchAsyncErrors } from "../utils/helpers";
+import RestaurantRepositoryImpl from "../repository/Restaurant";
 
 const restaurantController = new RestaurantController(
-    new ImageService(new CloudinaryImageStorage, null)
+    new ImageService(new CloudinaryImageStorage, null),
+    new RestaurantRepositoryImpl
 );
 
 const upload = multer({ 
@@ -18,15 +20,16 @@ const upload = multer({
 
 const router = Router();
 
-router.get("/:id", validateUUID, restaurantController.getById);
+// router.get("/:id", validateUUID, restaurantController.getById);
+router.get("/single", validateUUID, catchAsyncErrors(restaurantController.getOne))
 
 router.get("", restaurantController.getMany);
 
 router.post(
     "",
     // authorizeRole, 
-    // validationPipe, 
     upload.single("image"),
+    // validationPipe, 
     catchAsyncErrors(restaurantController.create)
 );
 
@@ -37,5 +40,7 @@ router.put(
 );
 
 router.delete("/:id", validateUUID, restaurantController.delete);
+
+// router.delete("/", deleteOneValidation, catchAsyncErrors(restaurantController.delete));
 
 export default router;

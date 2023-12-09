@@ -45,11 +45,11 @@ async function createDatabase() {
             await nodePgconnection.end();
             console.log("closed db connection");
         });
-        process.on('uncaughtException', (error) => {
-            // handle uncaught exception
-            console.error('Uncaught Exception:', error);
-            process.exit(1); // exit the process or take appropriate action
-        });
+        // process.on('uncaughtException', (error) => {
+        //     // handle uncaught exception
+        //     console.error('Uncaught Exception:', error);
+        //     process.exit(1); // exit the process or take appropriate action
+        // });
     } catch (error) {
         console.log(`SERVER INIT ERROR: ${error}`);
     }

@@ -12,7 +12,10 @@ export const catchAsyncErrors = (fn: Function) => (
     (req: Request, res: Response, next: NextFunction) => {
         const routePromise = fn(req, res, next);
         if (routePromise.catch) {
-            routePromise.catch((err: any) => next(err));
+            routePromise.catch((err: any) => {
+                console.log("ASYCN ", err);
+                return next(err);
+            });
         }
     }
 );
