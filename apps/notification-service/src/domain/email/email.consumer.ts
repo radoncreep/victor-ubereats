@@ -27,6 +27,7 @@ export class EmailQueueMessageHandler implements QueueMessageHandlerInterface {
             
         } catch (error) {
             console.log({ error });
+            throw error;
         }
     }
 

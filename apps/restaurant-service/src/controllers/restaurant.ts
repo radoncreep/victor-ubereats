@@ -39,20 +39,24 @@ export default class RestaurantController {
 
             const totalRestaurants = restaurantCount[0].count;
 
-            const paginatedRestaurants = await db.select()
+            let paginatedRestaurants = await db.select()
                 .from(restaurants)
                 .limit(limit)
                 .offset(offset)
+
+            paginatedRestaurants = paginatedRestaurants.map((res) => {
+                const mainImage = JSON.parse(res.mainImage);
+
+                return { ...res, mainImage }
+            })
     
             return res.status(200).json({
                 success: true,
-                payload: {
-                    restaurants: paginatedRestaurants,
-                    current: page,
-                    totalPages: Math.ceil(totalRestaurants / limit),
-                    totalRestaurants
-                }
-            })
+                restaurants: paginatedRestaurants,
+                current: page,
+                totalPages: Math.ceil(totalRestaurants / limit),
+                totalRestaurants
+            });
         } catch (error) {
             next(error);
             return;
@@ -132,11 +136,12 @@ export default class RestaurantController {
     }
 
     delete = async (req: Request, res: Response) => {
-        const payload = req.body;
+        const { id } = req.params;
 
         // delete image or any other service
+        // await this.imageService
     
-        await this.repository.deleteOne(payload);
+        await this.repository.deleteOne({ id });
 
         return res.json({ success: true, payload: null });
     }

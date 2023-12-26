@@ -17,11 +17,11 @@ export default class RestaurantRepositoryImpl implements Repository<NewRestauran
 
     create = async(payload: NewRestaurantSchema): Promise<RestaurantSchema> => {
         try {     
-            const result = await this.database
+            const result  = await this.database
                 .insert(this.table)
                 .values({...payload, id: uuid4()})
                 .returning();
-    
+            
             return result[0];
         } catch (error) {
             throw new ServerError(

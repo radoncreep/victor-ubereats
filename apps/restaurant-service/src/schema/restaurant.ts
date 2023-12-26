@@ -5,7 +5,7 @@ import { relations } from "drizzle-orm";
 
 import { RestaurantAddress, RestaurantLocation, Cuisine, OpeningHours } from "../entities/restaurant";
 import { menuitems } from "./menuItem";
-import { createCheckSchema } from "express-validator/src/middlewares/schema";
+import { categories } from "./categories";
 
 export type DbImage = {
   id: string;
@@ -24,14 +24,19 @@ export const restaurants = pgTable("restaurants", {
   cuisines: json("cusines").default([]).$type<Cuisine[]>(),
   opening_hours: json("opening_hours").default({ monday: { open: "9:00", close: "18:00"}}).$type<OpeningHours>(),
   rating: integer("rating").default(0),
-  mainImage: text("main_image").notNull().$type<DbImage>(), 
+  mainImage: text("main_image").notNull(), 
   featured_images: json("featured_images").default([]).$type<DbImage>(),
   createdAt: timestamp("created_at").$default(() => new Date()),
   updatedAt: timestamp("updated_at").$default(() => new Date()),
+  categoryId: uuid("category_id").references(() => categories.id) // references are typically kept on the many side
 });
 
-export const restaurantRelations = relations(restaurants, ({ many }) => ({
-  menuItems: many(menuitems)
+export const restaurantRelations = relations(restaurants, ({ many, one }) => ({
+  menuItems: many(menuitems),
+  categories: one(categories, {
+    fields: [restaurants.categoryId],
+    references: [categories.id]
+  })
 }));
 
 export const selectRestaurantSchema = createSelectSchema(restaurants);
