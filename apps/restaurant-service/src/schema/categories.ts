@@ -11,3 +11,6 @@ export const categories = pgTable("categories", {
 export const categoriesRelations = relations(categories, ({ many }) => ({
     restaurants: many(restaurants)
 }));
+
+export type NewCategoryEntity = typeof categories.$inferInsert;
+export type CategoryEntity = typeof categories.$inferSelect;

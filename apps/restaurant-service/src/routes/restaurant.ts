@@ -8,10 +8,12 @@ import ImageService from "../services/image/ImageService";
 import CloudinaryImageStorage from "../services/image/ImageStorage";
 import { catchAsyncErrors } from "../utils/helpers";
 import RestaurantRepositoryImpl from "../repository/Restaurant";
+import { CategoryRepository } from "../repository/CategoryRepository";
 
 const restaurantController = new RestaurantController(
     new ImageService(new CloudinaryImageStorage, null),
-    new RestaurantRepositoryImpl
+    new RestaurantRepositoryImpl,
+    new CategoryRepository
 );
 
 const upload = multer({ 

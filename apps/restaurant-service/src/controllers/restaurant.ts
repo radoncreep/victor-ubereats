@@ -8,6 +8,8 @@ import { isEmpty } from "../utils/helpers";
 import BaseImageService from "../services/image/BaseImageService";
 import { RestaurantRepository } from "../repository/Restaurant";
 import { NotFoundError } from "../error/notfound";
+import { CategoryRepository } from "../repository/CategoryRepository";
+import BadRequestError from "../error/BadRequest";
 
 type T = keyof NewRestaurantSchema;
 
@@ -15,7 +17,8 @@ export default class RestaurantController {
 
     constructor(
         private readonly imageService: BaseImageService,
-        private readonly repository: RestaurantRepository
+        private readonly repository: RestaurantRepository,
+        private readonly categoryRepository: CategoryRepository
     ) {}
 
     getOne = async (req: Request, res: Response, next: NextFunction): Promise<Response<RestaurantSchema> | void> => {    
@@ -89,7 +92,19 @@ export default class RestaurantController {
             folder
         });
 
-        const data = await this.repository.create({...payload, mainImage: savedImage });
+        const categoryName = payload.category as string;
+
+        const category = await this.categoryRepository.findOne({ name: categoryName });
+
+        if (!category) {
+            throw new BadRequestError("No Category Selected");
+        }
+
+        const data = await this.repository.create({
+            ...payload, 
+            mainImage: savedImage, 
+            categoryId: category.id 
+        });
 
         /** 
          * event for created restaurant event or pubsub

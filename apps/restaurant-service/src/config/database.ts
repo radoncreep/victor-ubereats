@@ -3,6 +3,7 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import * as schema from "../schema";
 import * as restaurantSchema from "../schema/restaurant";
 import * as menuItemSchema from "../schema/menuItem";
+import * as categorySchema from "../schema/categories";
 
 
 export const nodePgconnection = new Client({
@@ -15,4 +16,10 @@ export const nodePgconnection = new Client({
     database: process.env.POSTGRES_DB_NAME
 });
 
-export const databaseClient = drizzle(nodePgconnection, { schema: { ...restaurantSchema, ...menuItemSchema } });
+export const databaseClient = drizzle(nodePgconnection, { 
+    schema: { 
+        ...restaurantSchema, 
+        ...menuItemSchema,
+        ...categorySchema
+    } 
+});

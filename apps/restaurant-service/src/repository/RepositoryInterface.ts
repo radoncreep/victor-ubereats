@@ -15,5 +15,6 @@ export interface Repository<T, R> {
     getMany(pagination: PaginatedRepositoryParams): Promise<R[]>;
     update(payload: T): Promise<R>;
     getById(id: string): Promise<R>;
-    findByNameOrPhone(payload: { name: string, phone: string }): Promise<NewRestaurantSchema | null>;
+    findByNameOrPhone?(payload: { name: string, phone: string }): Promise<NewRestaurantSchema | null>;
+    findOne?(paylaod: { name: string }): Promise<R>;
 }

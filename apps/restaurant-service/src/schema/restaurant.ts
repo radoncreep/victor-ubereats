@@ -28,7 +28,7 @@ export const restaurants = pgTable("restaurants", {
   featured_images: json("featured_images").default([]).$type<DbImage>(),
   createdAt: timestamp("created_at").$default(() => new Date()),
   updatedAt: timestamp("updated_at").$default(() => new Date()),
-  categoryId: uuid("category_id").references(() => categories.id) // references are typically kept on the many side
+  categoryId: uuid("category_id").notNull().references(() => categories.id) // references are typically kept on the many side
 });
 
 export const restaurantRelations = relations(restaurants, ({ many, one }) => ({
