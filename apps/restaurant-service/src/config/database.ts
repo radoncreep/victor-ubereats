@@ -4,6 +4,8 @@ import * as schema from "../schema";
 import * as restaurantSchema from "../schema/restaurant";
 import * as menuItemSchema from "../schema/menuItem";
 import * as categorySchema from "../schema/categories";
+import * as menuCategories from "../schema/menu-category";
+
 
 
 export const nodePgconnection = new Client({
@@ -20,6 +22,7 @@ export const databaseClient = drizzle(nodePgconnection, {
     schema: { 
         ...restaurantSchema, 
         ...menuItemSchema,
-        ...categorySchema
+        ...categorySchema,
+        ...menuCategories
     } 
 });

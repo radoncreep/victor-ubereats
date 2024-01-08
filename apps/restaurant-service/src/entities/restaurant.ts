@@ -9,9 +9,3 @@ export type RestaurantAddress = {
 export type RestaurantLocation = Location;
 
 export type Cuisine = string;
-
-export type Day = "monday" | "tuesday" | "wednesday" | "thursday" | "friday" | "saturday" | "sunday";
-export type DaySchedule = "open" | "close";
-export type OpeningHours = {
-    [key in Day]: Record<DaySchedule, string>;
-};

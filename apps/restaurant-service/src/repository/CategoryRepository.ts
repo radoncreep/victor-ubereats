@@ -1,22 +1,22 @@
-import { Location } from "ubereats-types";
 import { eq } from "drizzle-orm";
 
-import { RestaurantAddress, OpeningHours } from "../entities/restaurant";
 import { NewCategoryEntity, CategoryEntity, categories } from "../schema/categories";
-import { DbImage } from "../schema/restaurant";
 import { PaginatedRepositoryParams, Repository } from "./RepositoryInterface";
 import { databaseClient } from "../config/database";
 import { isEmpty } from "../utils/helpers";
 import { ServerError } from "../error/server.error";
 
 
-export class CategoryRepository implements Repository<NewCategoryEntity, CategoryEntity> {
+export interface CategoryRepository extends Repository<NewCategoryEntity, CategoryEntity>  {
+    getManyWithRestaurants(pagination: PaginatedRepositoryParams): Promise<CategoryEntity[]>;
+}
+
+class CategoryRepositoryImpl implements CategoryRepository {
     
     private readonly database = databaseClient;
     private readonly table = categories;
 
     async create(payload: NewCategoryEntity): Promise<CategoryEntity> {
-        console.log({ payload })
         try {     
             const result = await this.database.insert(this.table).values(payload).returning();
     
@@ -59,15 +59,49 @@ export class CategoryRepository implements Repository<NewCategoryEntity, Categor
         }
     }
 
-    getMany(pagination: PaginatedRepositoryParams): Promise<{ id: string; name: string; }[]> {
+    async getManyWithRestaurants(pagination: PaginatedRepositoryParams): Promise<CategoryEntity[]> {
+        const {page, limit} = pagination;
+        try {
+            const offset = (page - 1) * limit;
+            
+            const result = await this.database.query.categories
+                .findMany({ 
+                    limit: limit, 
+                    offset, 
+                    with: {
+                        restaurants: {
+                            columns: {
+                                id: true,
+                                name: true,
+                                mainImage: true,
+                                opening_hours: true,
+                                rating: true,
+                                location: true
+                            }
+                        }
+                    }
+                });
+
+            console.log({ result })
+            return result;
+        } catch (error) { 
+            console.log("here ", {error});
+            throw new ServerError(
+                "Failed to retrieve category",
+                error instanceof Error ? error.message : null
+            );
+        }
+    }
+
+    async getMany(pagination: PaginatedRepositoryParams): Promise<CategoryEntity[]> {
+        throw new Error()
+    }
+
+    update(payload: { name: string; id?: string; }): Promise<CategoryEntity> {
         throw new Error("Method not implemented.");
     }
 
-    update(payload: { name: string; id?: string; }): Promise<{ id: string; name: string; }> {
-        throw new Error("Method not implemented.");
-    }
-
-    getById(id: string): Promise<{ id: string; name: string; }> {
+    getById(id: string): Promise<CategoryEntity> {
         throw new Error("Method not implemented.");
     }
    
@@ -80,3 +114,5 @@ export class CategoryRepository implements Repository<NewCategoryEntity, Categor
         return isEmpty(result) ? null : result[0];
     }
 }
+
+export const categoryRepository = new CategoryRepositoryImpl();

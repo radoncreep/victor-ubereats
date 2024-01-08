@@ -9,7 +9,10 @@ import { ServerError } from "../error/server.error";
 import { isEmpty } from "../utils/helpers";
 
 
-export interface RestaurantRepository extends Repository<NewRestaurantSchema, RestaurantSchema> {}
+export interface RestaurantRepository extends Repository<NewRestaurantSchema, RestaurantSchema> {
+    findByNameOrPhone?(payload: { name: string, phone: string }): Promise<NewRestaurantSchema | null>;
+    findOne?(paylaod: { name: string }): Promise<RestaurantSchema>;
+}
 
 export default class RestaurantRepositoryImpl implements Repository<NewRestaurantSchema, RestaurantSchema> {
     private readonly database = databaseClient;

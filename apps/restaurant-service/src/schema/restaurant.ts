@@ -3,9 +3,10 @@ import { z } from "zod";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { relations } from "drizzle-orm";
 
-import { RestaurantAddress, RestaurantLocation, Cuisine, OpeningHours } from "../entities/restaurant";
+import { RestaurantAddress, RestaurantLocation, Cuisine } from "../entities/restaurant";
 import { menuitems } from "./menuItem";
 import { categories } from "./categories";
+import { TimeAvailability } from "../types";
 
 export type DbImage = {
   id: string;
@@ -22,9 +23,10 @@ export const restaurants = pgTable("restaurants", {
   location: json("location").default({ location: 0.0, longitude: 0.0 }).$type<RestaurantLocation>(),
   phone: text("phone").notNull().unique(),
   cuisines: json("cusines").default([]).$type<Cuisine[]>(),
-  opening_hours: json("opening_hours").default({ monday: { open: "9:00", close: "18:00"}}).$type<OpeningHours>(),
+  opening_hours: json("opening_hours").$type<TimeAvailability[]>()
+    .default([{ monday: { start_time: "09:00", end_time: "18:00"}}]),
   rating: integer("rating").default(0),
-  mainImage: text("main_image").notNull(), 
+  mainImage: json("main_image").notNull(), 
   featured_images: json("featured_images").default([]).$type<DbImage>(),
   createdAt: timestamp("created_at").$default(() => new Date()),
   updatedAt: timestamp("updated_at").$default(() => new Date()),

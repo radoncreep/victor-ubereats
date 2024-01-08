@@ -6,7 +6,7 @@ import { NewRestaurantSchema, RestaurantSchema, restaurants } from "../schema/re
 import { databaseClient as db } from "../config/database";
 import { isEmpty } from "../utils/helpers";
 import BaseImageService from "../services/image/BaseImageService";
-import { RestaurantRepository } from "../repository/Restaurant";
+import { RestaurantRepository } from "../repository/RestaurantRepository";
 import { NotFoundError } from "../error/notfound";
 import { CategoryRepository } from "../repository/CategoryRepository";
 import BadRequestError from "../error/BadRequest";
@@ -46,12 +46,6 @@ export default class RestaurantController {
                 .from(restaurants)
                 .limit(limit)
                 .offset(offset)
-
-            paginatedRestaurants = paginatedRestaurants.map((res) => {
-                const mainImage = JSON.parse(res.mainImage);
-
-                return { ...res, mainImage }
-            })
     
             return res.status(200).json({
                 success: true,

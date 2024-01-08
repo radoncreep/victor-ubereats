@@ -1,5 +1,3 @@
-import { NewRestaurantSchema } from "../schema/restaurant";
-
 export type RepositoryReturnType<T> = Promise<T>;
 export type PaginatedRepositoryParams = {
     limit: number;
@@ -15,6 +13,7 @@ export interface Repository<T, R> {
     getMany(pagination: PaginatedRepositoryParams): Promise<R[]>;
     update(payload: T): Promise<R>;
     getById(id: string): Promise<R>;
-    findByNameOrPhone?(payload: { name: string, phone: string }): Promise<NewRestaurantSchema | null>;
     findOne?(paylaod: { name: string }): Promise<R>;
 }
+
+

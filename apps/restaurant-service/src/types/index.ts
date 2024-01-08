@@ -1,3 +1,4 @@
+import type { Response } from "express";
 
 export type UserRole = "customer" | "vendor" | "rider";
 
@@ -16,7 +17,7 @@ export type SuccessResponse<T> = {
     payload: T;
 }
 
-export type ControllerResponse<T> = Promise<SuccessResponse<T> | void>;
+export type ControllerResponse<T> = Promise<Response<SuccessResponse<T>>>;
 
 export interface DatabaseInterface <P, R> {
     create(payload: P): Promise<R>;
@@ -36,6 +37,12 @@ export type MenuItem = {
     restaurantId: string;
 }
 
+export type DayOfWeek = "monday" | "tuesday" | "wednesday" | "thursday" | "friday" | "saturday" | "sunday";
+export type TimePeriod = "start_time" | "end_time";
+export type TimeAvailability = {
+    [key in DayOfWeek]?: Record<TimePeriod, string>;
+};
+
 declare global {
     namespace Express {
         interface Request {
@@ -43,4 +50,5 @@ declare global {
         }
     }
 }
+
 

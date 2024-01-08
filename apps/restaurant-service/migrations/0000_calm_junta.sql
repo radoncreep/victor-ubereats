@@ -4,6 +4,25 @@ CREATE TABLE IF NOT EXISTS "categories" (
 	CONSTRAINT "categories_name_unique" UNIQUE("name")
 );
 --> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "menu-categories" (
+	"id" text PRIMARY KEY NOT NULL,
+	"title" text NOT NULL,
+	"subtitle" text,
+	"menu-entity" jsonb,
+	"menu-id" text,
+	CONSTRAINT "menu-categories_id_unique" UNIQUE("id"),
+	CONSTRAINT "menu-categories_title_unique" UNIQUE("title")
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "menus" (
+	"id" text PRIMARY KEY NOT NULL,
+	"title" text NOT NULL,
+	"subtitle" text,
+	"availability" json DEFAULT '[{"monday":{"start_time":"09:00","end_time":"12:00"}}]'::json,
+	CONSTRAINT "menus_id_unique" UNIQUE("id"),
+	CONSTRAINT "menus_title_unique" UNIQUE("title")
+);
+--> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "menuitems" (
 	"id" uuid PRIMARY KEY NOT NULL,
 	"name" text NOT NULL,
@@ -21,15 +40,23 @@ CREATE TABLE IF NOT EXISTS "restaurants" (
 	"location" json DEFAULT '{"location":0,"longitude":0}'::json,
 	"phone" text NOT NULL,
 	"cusines" json DEFAULT '[]'::json,
-	"opening_hours" json DEFAULT '{"monday":{"open":"9:00","close":"18:00"}}'::json,
+	"opening_hours" json DEFAULT '[{"monday":{"start_time":"09:00","end_time":"18:00"}}]'::json,
 	"rating" integer DEFAULT 0,
-	"main_image" text NOT NULL,
+	"main_image" json NOT NULL,
 	"featured_images" json DEFAULT '[]'::json,
 	"created_at" timestamp,
 	"updated_at" timestamp,
-	"category_id" uuid,
+	"category_id" uuid NOT NULL,
 	CONSTRAINT "restaurants_name_unique" UNIQUE("name"),
 	CONSTRAINT "restaurants_phone_unique" UNIQUE("phone")
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "sub-menu-items" (
+	"id" uuid PRIMARY KEY NOT NULL,
+	"name" text NOT NULL,
+	"quantity_details" json DEFAULT '{"minQuantity":0,"maxQuantity":2}'::json,
+	"display_type" text,
+	"menu-id" text
 );
 --> statement-breakpoint
 DO $$ BEGIN

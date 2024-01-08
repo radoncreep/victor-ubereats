@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "pg",
-  "id": "c8e5f866-4a64-4be5-8365-e8b809255b06",
+  "id": "6b482054-d18e-41d2-bf4a-1482b4fe5119",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "categories": {
@@ -31,6 +31,111 @@
           "nullsNotDistinct": false,
           "columns": [
             "name"
+          ]
+        }
+      }
+    },
+    "menu-categories": {
+      "name": "menu-categories",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "subtitle": {
+          "name": "subtitle",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "menu-entity": {
+          "name": "menu-entity",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "menu-id": {
+          "name": "menu-id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "menu-categories_id_unique": {
+          "name": "menu-categories_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "id"
+          ]
+        },
+        "menu-categories_title_unique": {
+          "name": "menu-categories_title_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "title"
+          ]
+        }
+      }
+    },
+    "menus": {
+      "name": "menus",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "subtitle": {
+          "name": "subtitle",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "availability": {
+          "name": "availability",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'[{\"monday\":{\"start_time\":\"09:00\",\"end_time\":\"12:00\"}}]'::json"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "menus_id_unique": {
+          "name": "menus_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "id"
+          ]
+        },
+        "menus_title_unique": {
+          "name": "menus_title_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "title"
           ]
         }
       }
@@ -149,7 +254,7 @@
           "type": "json",
           "primaryKey": false,
           "notNull": false,
-          "default": "'{\"monday\":{\"open\":\"9:00\",\"close\":\"18:00\"}}'::json"
+          "default": "'[{\"monday\":{\"start_time\":\"09:00\",\"end_time\":\"18:00\"}}]'::json"
         },
         "rating": {
           "name": "rating",
@@ -160,7 +265,7 @@
         },
         "main_image": {
           "name": "main_image",
-          "type": "text",
+          "type": "json",
           "primaryKey": false,
           "notNull": true
         },
@@ -187,7 +292,7 @@
           "name": "category_id",
           "type": "uuid",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         }
       },
       "indexes": {},
@@ -223,6 +328,47 @@
           ]
         }
       }
+    },
+    "sub-menu-items": {
+      "name": "sub-menu-items",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "quantity_details": {
+          "name": "quantity_details",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'{\"minQuantity\":0,\"maxQuantity\":2}'::json"
+        },
+        "display_type": {
+          "name": "display_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "menu-id": {
+          "name": "menu-id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
     }
   },
   "enums": {},

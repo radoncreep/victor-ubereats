@@ -11,7 +11,6 @@ export const menuitems = pgTable("menuitems", {
 	price: integer("price").notNull(),
 	imageUrl: text("imageUrl").notNull(),
 	restaurantId: uuid("restaurantId").references(() => restaurants.id).notNull(),
-	// category: text("category").notNull()
 });
 
 export const menuitemsRelations = relations(menuitems, ({ one }) => ({
