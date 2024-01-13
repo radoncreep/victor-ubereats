@@ -1,20 +1,16 @@
 import { Request, Response, NextFunction } from "express";
 
-import { ControllerResponse, DatabaseInterface, MenuItem } from "../types";
-import { isEmpty } from "../utils/helpers";
-import { NewNoIdMenuItemSchema } from "../schema/menuItem";
+import { createHypenatedId, isEmpty } from "../utils/helpers";
+import { MenuItemRepository, MenuItemRepositoryImpl } from "../repository/MenuItemRepository";
+import { NewMenuItemSchema } from "../schema/menu-item";
 
 
-type T = DatabaseInterface<NewNoIdMenuItemSchema, MenuItem>;
 
-export class MenuItemController {
-    private readonly repository: T;
+class MenuItemController {
 
-    constructor(repository: T) {
-        this.repository = repository;
-    }
+    constructor(private readonly repository: MenuItemRepository) {}
 
-    getById = async (req: Request, res: Response, next: NextFunction) => {
+    getById = async (req: Request, res: Response) => {
         const result = await this.repository.getById(req.params.menuItemId);
 
         return res.json({
@@ -23,11 +19,11 @@ export class MenuItemController {
         });
     }
 
-    getMany = async (req: Request, res: Response, next: NextFunction) => {
+    getMany = async (req: Request, res: Response) => {
         const limit = parseInt(req.query.limit as string);
         const page = parseInt(req.query.page as string);
 
-        const result = await this.repository.getMany(limit, page);
+        const result = await this.repository.getMany({ limit, page });
         const totalRestaurants = await this.repository.count();
         const totalPages = Math.ceil(totalRestaurants / limit);
 
@@ -42,21 +38,23 @@ export class MenuItemController {
         });
     }
 
-    create = async (req: Request, res: Response, next: NextFunction) =>{
-        const payload = req.body as NewNoIdMenuItemSchema;
+    create = async (req: Request, res: Response) =>{
+        const payload = req.body as Omit<NewMenuItemSchema, "id">;
+        const { restaurantId, menuCategoryId } = req.params;
 
-        // image upload
-        
-        try {
-            const result = await this.repository.create(payload);
+        const id = createHypenatedId(payload.name);
 
-            return res.status(201).send(result);
-        } catch (error) {
-            return next(error);
-        }
+        const result = await this.repository.create({
+            ...payload,
+            id,
+            restaurantId,
+            menuCategoryId
+        });
+
+        return res.status(201).send(result);
     }
 
-    update = async (req: Request, res: Response, next: NextFunction) => {
+    update = async (req: Request, res: Response) => {
         const payload = req.body;
         const id = req.params.menuItemdId || payload.id;
 
@@ -68,10 +66,10 @@ export class MenuItemController {
         });
     }
 
-    delete = async (req: Request, res: Response, next: NextFunction) => {
+    delete = async (req: Request, res: Response) => {
         const id = req.params.menuItemdId;
         
-        this.repository.delete(id);
+        // this.repository.delete(id);
 
         return res.json({
             success: true,
@@ -79,3 +77,5 @@ export class MenuItemController {
         });
     }
 }
+
+export const menuItemController = new MenuItemController(new MenuItemRepositoryImpl);

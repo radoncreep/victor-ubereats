@@ -1,2 +1,2 @@
-export * as menuItemSchema from "./menuItem";
+export * as menuItemSchema from "./menu-item";
 export * as restaurantSchema from "./restaurant";

@@ -10,10 +10,10 @@ export interface Repository<T, R> {
     create(payload: T): Promise<R>;
     deleteOne(payload: { id: string }): Promise<void>;
     getOne(payload: { id: string }): Promise<R | null>;
-    getMany(pagination: PaginatedRepositoryParams): Promise<R[]>;
-    update(payload: T): Promise<R>;
+    getMany(pagination: PaginatedRepositoryParams, id?: string): Promise<R[]>;
+    update(id: string, payload: T): Promise<R>;
     getById(id: string): Promise<R>;
-    findOne?(paylaod: { name: string }): Promise<R>;
+    findOne?(paylaod: { name: string }): Promise<R | null>;
 }
 
 

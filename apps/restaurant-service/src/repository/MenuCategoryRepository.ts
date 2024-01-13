@@ -56,7 +56,7 @@ export default class MenuCategoryRepositoryImpl implements MenuCategoryRepositor
         }
     }
 
-    public async getMany(pagination: PaginatedRepositoryParams): Promise<MenuCategorySchema[]> {
+    public async getMany(pagination: PaginatedRepositoryParams, id: string): Promise<MenuCategorySchema[]> {
         const {page, limit} = pagination;
         try {
             const offset = (page - 1) * limit;
@@ -65,9 +65,7 @@ export default class MenuCategoryRepositoryImpl implements MenuCategoryRepositor
                 .findMany({ 
                     limit: limit, 
                     offset, 
-                    // with: {
-                        
-                    // }
+                    where: eq(this.table.restaurantId, id)
                 });
 
             return result;
@@ -79,7 +77,7 @@ export default class MenuCategoryRepositoryImpl implements MenuCategoryRepositor
         }
     }
 
-    update(payload: NewMenuCategorySchema): Promise<MenuCategorySchema> {
+    update(id: string, payload: NewMenuCategorySchema): Promise<MenuCategorySchema> {
         throw new Error("Method not implemented.");
     }
 

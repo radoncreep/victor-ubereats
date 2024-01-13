@@ -42,7 +42,7 @@ class CategoryRepositoryImpl implements CategoryRepository {
         }
     }
 
-    async getOne(payload: { id: string; }): Promise<{ id: string; name: string; }> {
+    async getOne(payload: { id: string; }): Promise<CategoryEntity | null> {
         try {
             const result = await this.database.select()
                 .from(this.table)
@@ -97,7 +97,7 @@ class CategoryRepositoryImpl implements CategoryRepository {
         throw new Error()
     }
 
-    update(payload: { name: string; id?: string; }): Promise<CategoryEntity> {
+    update(id: string, payload: { name: string; id?: string; }): Promise<CategoryEntity> {
         throw new Error("Method not implemented.");
     }
 
@@ -106,11 +106,9 @@ class CategoryRepositoryImpl implements CategoryRepository {
     }
    
     async findOne(paylaod: { name: string }): Promise<CategoryEntity | null> {
-        console.log({ name: paylaod.name })
         const result = await this.database.select()
             .from(this.table).where(eq(this.table.name, paylaod.name));
 
-        console.log({ categories: result })
         return isEmpty(result) ? null : result[0];
     }
 }

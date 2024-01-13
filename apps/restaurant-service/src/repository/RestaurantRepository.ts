@@ -48,8 +48,20 @@ export default class RestaurantRepositoryImpl implements Repository<NewRestauran
         }
     }
 
-    getById(id: string): Promise<RestaurantSchema> {
-        throw new Error("Method not implemented.");
+    getById = async(id: string): Promise<RestaurantSchema | null> => {
+        try {
+            const result = await this.database.select()
+            .from(restaurants)
+            .where(
+                and(
+                    eq(restaurants.id, id)
+                )
+            );
+
+            return isEmpty(result) ? null : result[0];
+        } catch (error) {
+            throw error;
+        }
     }
 
     getOne = async (selector: { id: string }) => {
@@ -72,7 +84,7 @@ export default class RestaurantRepositoryImpl implements Repository<NewRestauran
         throw new Error("Method not implemented.");
     }
 
-    update = async (payload: NewRestaurantSchema): Promise<RestaurantSchema> => {
+    update = async (id: string, payload: NewRestaurantSchema): Promise<RestaurantSchema> => {
         throw new Error("Method not implemented.");
     }
 

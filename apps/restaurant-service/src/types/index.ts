@@ -38,7 +38,7 @@ export type MenuItem = {
 }
 
 export type DayOfWeek = "monday" | "tuesday" | "wednesday" | "thursday" | "friday" | "saturday" | "sunday";
-export type TimePeriod = "start_time" | "end_time";
+export type TimePeriod = "startTime" | "endTime";
 export type TimeAvailability = {
     [key in DayOfWeek]?: Record<TimePeriod, string>;
 };

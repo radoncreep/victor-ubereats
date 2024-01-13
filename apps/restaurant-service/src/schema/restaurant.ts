@@ -4,9 +4,11 @@ import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { relations } from "drizzle-orm";
 
 import { RestaurantAddress, RestaurantLocation, Cuisine } from "../entities/restaurant";
-import { menuitems } from "./menuItem";
+import { menuitems } from "./menu-item";
 import { categories } from "./categories";
 import { TimeAvailability } from "../types";
+import { menus } from "./menu";
+import { subMenuItemGroup } from "./sub-menu";
 
 export type DbImage = {
   id: string;
@@ -24,7 +26,7 @@ export const restaurants = pgTable("restaurants", {
   phone: text("phone").notNull().unique(),
   cuisines: json("cusines").default([]).$type<Cuisine[]>(),
   opening_hours: json("opening_hours").$type<TimeAvailability[]>()
-    .default([{ monday: { start_time: "09:00", end_time: "18:00"}}]),
+    .default([{ monday: { startTime: "09:00", endTime: "18:00"}}]),
   rating: integer("rating").default(0),
   mainImage: json("main_image").notNull(), 
   featured_images: json("featured_images").default([]).$type<DbImage>(),
@@ -38,7 +40,9 @@ export const restaurantRelations = relations(restaurants, ({ many, one }) => ({
   categories: one(categories, {
     fields: [restaurants.categoryId],
     references: [categories.id]
-  })
+  }),
+  menus: many(menus),
+  subMenuItemGroups: many(subMenuItemGroup)
 }));
 
 export const selectRestaurantSchema = createSelectSchema(restaurants);

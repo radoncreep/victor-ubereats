@@ -74,6 +74,14 @@ export default class RestaurantController {
             ));
         }
 
+        const categoryName = payload.category as string;
+
+        const category = await this.categoryRepository.findOne({ name: categoryName });
+
+        if (!category) {
+            throw new BadRequestError("No Category Selected");
+        }
+
         // upload main image from request to a cdn or bucket - ImageUploadService
         const restaurantName = payload.name;
         const folder = `restaurants/${restaurantName}`;
@@ -85,14 +93,6 @@ export default class RestaurantController {
             type: "main",
             folder
         });
-
-        const categoryName = payload.category as string;
-
-        const category = await this.categoryRepository.findOne({ name: categoryName });
-
-        if (!category) {
-            throw new BadRequestError("No Category Selected");
-        }
 
         const data = await this.repository.create({
             ...payload, 

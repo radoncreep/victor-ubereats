@@ -8,7 +8,7 @@ app
     .use(urlencoded({ extended: true }))
     .use(json())
     .use(morgan("dev"))
-    .use("/api", routes)
+    .use("/api/v1/restaurants", routes)
     .use((error: any, req: Request, res: Response, next: NextFunction) => {
         let errorMessage = error.message ?? "Server Error";
         let errorStatusCode = error.statusCode ?? 500;
