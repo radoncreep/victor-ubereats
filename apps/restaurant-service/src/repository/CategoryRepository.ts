@@ -5,10 +5,11 @@ import { PaginatedRepositoryParams, Repository } from "./RepositoryInterface";
 import { databaseClient } from "../config/database";
 import { isEmpty } from "../utils/helpers";
 import { ServerError } from "../error/server.error";
+import { RestaurantSchema } from "../schema/restaurant";
 
 
 export interface CategoryRepository extends Repository<NewCategoryEntity, CategoryEntity>  {
-    getManyWithRestaurants(pagination: PaginatedRepositoryParams): Promise<CategoryEntity[]>;
+    getManyWithRestaurants(pagination: PaginatedRepositoryParams): Promise<(CategoryEntity & { restaurants: RestaurantSchema[] })[]>;
 }
 
 class CategoryRepositoryImpl implements CategoryRepository {
@@ -59,7 +60,7 @@ class CategoryRepositoryImpl implements CategoryRepository {
         }
     }
 
-    async getManyWithRestaurants(pagination: PaginatedRepositoryParams): Promise<CategoryEntity[]> {
+    async getManyWithRestaurants(pagination: PaginatedRepositoryParams) {
         const {page, limit} = pagination;
         try {
             const offset = (page - 1) * limit;
@@ -69,20 +70,11 @@ class CategoryRepositoryImpl implements CategoryRepository {
                     limit: limit, 
                     offset, 
                     with: {
-                        restaurants: {
-                            columns: {
-                                id: true,
-                                name: true,
-                                mainImage: true,
-                                opening_hours: true,
-                                rating: true,
-                                location: true
-                            }
-                        }
+                        restaurants: true
                     }
                 });
 
-            console.log({ result })
+            // console.log({ result })
             return result;
         } catch (error) { 
             console.log("here ", {error});

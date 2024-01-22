@@ -25,7 +25,7 @@ export const restaurants = pgTable("restaurants", {
   location: json("location").default({ location: 0.0, longitude: 0.0 }).$type<RestaurantLocation>(),
   phone: text("phone").notNull().unique(),
   cuisines: json("cusines").default([]).$type<Cuisine[]>(),
-  opening_hours: json("opening_hours").$type<TimeAvailability[]>()
+  openingHours: json("opening_hours").$type<TimeAvailability[]>()
     .default([{ monday: { startTime: "09:00", endTime: "18:00"}}]),
   rating: integer("rating").default(0),
   mainImage: json("main_image").notNull(), 
@@ -76,7 +76,7 @@ export const insertRestaurantSchema = createInsertSchema(restaurants, {
   }),
   phone: (schema) => schema.phone.min(10).max(11),
   cuisines: z.array(z.enum(["african", "nigerian", "italian"])),
-  opening_hours: z.object({
+  openingHours: z.object({
     open: z.string(),
     close: z.string()
   })
