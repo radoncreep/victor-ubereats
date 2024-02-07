@@ -13,6 +13,7 @@ type AMQPConsumerConfig = {
     messageHandlers: QueueMessageHandlerInterface[]
 }
 
+// TODO: Use template method, so listen is a template method and others are concrete
 export class AMQPConsumer {
     private channel: Channel | undefined;
     // private exchangeName = "notification";
@@ -84,6 +85,7 @@ export class AMQPConsumer {
                 console.log(`created queue ${queueName} with binding key: bindingKey: ${bindingKey}`);
             } catch (error) {
                 console.log("q error ", error)
+                throw error;
             }
         }
     }
@@ -92,23 +94,27 @@ export class AMQPConsumer {
         if (!this.channel) await this.createChannel();
 
         this.declaredQueues.forEach(async (queue) => {
-            await this.channel!.consume(queue!.queue, (message) => {
-                console.log("consuming")
-                if (!message)
-                    throw new Error("couldn't consume message.");
+            try {      
+                await this.channel!.consume(queue!.queue, (message) => {
+                    console.log("consuming")
+                    if (!message)
+                        throw new Error("couldn't consume message.");
+        
+                    const { fields: { routingKey }, content } = message;
+                    console.log({ routingKey })
+            
+                    const consumer = this.messageHandlers.get(routingKey);
+            
+                    if (!consumer) throw new Error(`No Consumer for ${routingKey} key`);
+            
+                    const payload = JSON.parse(content.toString());
+                    consumer.handleMessage(payload);
     
-                const { fields: { routingKey }, content } = message;
-                console.log({ routingKey })
-        
-                const consumer = this.messageHandlers.get(routingKey);
-        
-                if (!consumer) throw new Error(`No Consumer for ${routingKey} key`);
-        
-                const payload = JSON.parse(content.toString());
-                consumer.handleMessage(payload);
-
-                 // logger    
-            }, { noAck: true });
+                     // logger    
+                }, { noAck: true });
+            } catch (error) {
+                throw error;
+            }
         });
     }
 }

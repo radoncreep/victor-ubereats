@@ -20,24 +20,26 @@ app
 const PORT = process.env.PORT || 1014;
 
 app.listen(PORT, async () => { 
-
-    const smsHandler = new SmsQueueMessageHandler(new TwilioSmsServce);
-    const emailHandler = new EmailQueueMessageHandler(new MailjetSMTPService);
-    emailHandler.setMailbuilders = new CreateAccountEmailBuilder;
-    console.log("uri" ,process.env.RABBITMQ_URI)
-
-    const consumer = await new AMQPConsumer({
-        uri: process.env.RABBITMQ_URI as string,
-        exchange: { 
-            name: "auth.notification", 
-            type: "topic" 
-        },
-        messageHandlers: [
-            emailHandler, 
-            smsHandler
-        ]
-    })
-    consumer.listen();
-
-    console.log(`${process.env.SERVICE_NAME} Service is listening on port ${PORT}`);
+    try {
+        const smsHandler = new SmsQueueMessageHandler(new TwilioSmsServce);
+        const emailHandler = new EmailQueueMessageHandler(new MailjetSMTPService);
+        emailHandler.setMailbuilders = new CreateAccountEmailBuilder;
+    
+        const consumer = await new AMQPConsumer({
+            uri: process.env.RABBITMQ_URI as string,
+            exchange: { 
+                name: "auth.notification", 
+                type: "topic" 
+            },
+            messageHandlers: [
+                emailHandler, 
+                smsHandler
+            ]
+        })
+        consumer.listen();
+    
+        console.log(`${process.env.SERVICE_NAME} Service is listening on port ${PORT}`);
+    } catch (error) {
+        console.log("Notification Error: ", error);
+    }
 });

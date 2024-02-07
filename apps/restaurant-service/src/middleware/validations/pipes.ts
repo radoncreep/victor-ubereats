@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
-import { insertRestaurantSchema } from "../../schema/restaurant";
+import { NewRestaurantSchema, insertRestaurantSchema, restaurants, uniqueRestaurantFields } from "../../schema/restaurant";
 import { ZodError } from "zod";
+import { NotFoundError } from "../../error/notfound";
 
 
 export function validationPipe(req: Request, res: Response, next: NextFunction) {
@@ -19,10 +20,10 @@ export function validationPipe(req: Request, res: Response, next: NextFunction) 
         const restaurantData = req.body;
         
         try {
-            resquestSchema.parse(restaurantData);
+            resquestSchema.parse(JSON.parse(restaurantData));
         } catch (error) {
             if (error instanceof ZodError) {
-                throw error;
+                throw error; // FORMAT WELL
             }
         }
         next();
@@ -41,5 +42,37 @@ export function validateUUID(req: Request, res: Response, next: NextFunction) {
         error.message = "Invalid Id";
         next(error);
     }
+    next();
+}
+
+export function deleteOneValidation(req: Request, res: Response, next: NextFunction) {
+    const body = req.body;
+
+    try {
+        const res = uniqueRestaurantFields
+            .pick({ id: true })
+            .parse(body);
+        // console.log({ res })
+    } catch (error) {
+        if (error instanceof ZodError) {
+            console.log("ZOD ERROR ", error.format()._errors)
+            next(new NotFoundError("Failed to delete"));
+        }
+    }
+
+    // try {
+    //     for (let [key, value] of Object.entries(body)) {
+    //         if (!restaurants[key]) {
+    //             throw new NotFoundError("Invalid unique provided");
+    //         }
+
+    //         let newKey = key as keyof NewRestaurantSchema;
+    //         if (!restaurants[newKey].isUnique) {
+    //             throw new NotFoundError("Invalid unique provided");
+    //         }
+    //     }
+    // } catch (error) {
+    //     return next(error);
+    // }
     next();
 }
