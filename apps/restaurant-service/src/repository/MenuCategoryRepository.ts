@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 
 import { type NewMenuCategorySchema, type MenuCategorySchema, menuCategories } from "../schema/menu-category";
 import { PaginatedRepositoryParams, Repository } from "./RepositoryInterface";
@@ -39,11 +39,16 @@ export default class MenuCategoryRepositoryImpl implements MenuCategoryRepositor
         }
     }
 
-    public async getOne(payload: { id: string; }): Promise<MenuCategorySchema> {
+    public async getOne(payload: { id: string; restaurantId: string }): Promise<MenuCategorySchema> {
         try {
             const result = await this.database.select()
                 .from(this.table)
-                .where(eq(this.table.id, payload.id));
+                .where(
+                    and(
+                        eq(this.table.id, payload.id),
+                        eq(this.table.restaurantId, payload.restaurantId)
+                    )
+                );
 
             if (isEmpty(result)) throw new Error("Not found");
             

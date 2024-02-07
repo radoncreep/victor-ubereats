@@ -38,12 +38,17 @@ export class MenuItemRepositoryImpl implements MenuItemRepository  {
     }
 
     async getById(id: string): Promise<MenuItem | null> {
-        const data = await this.db
-            .select()
-            .from(this.entity)
-            .where(eq(this.entity.id, id));
-
-        return isEmpty(data) ? null : data[0];
+        try {
+            const data = await this.db
+                .select()
+                .from(this.entity)
+                .where(eq(this.entity.id, id));
+    
+            return isEmpty(data) ? null : data[0];
+        } catch (error) {
+            console.log("menu item ", error)
+            throw error;
+        }
     }
 
     async getMany(pagination: PaginatedRepositoryParams, id: string): Promise<MenuItem[] | null> {

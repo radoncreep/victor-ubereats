@@ -3,12 +3,17 @@ import { Request, Response, NextFunction } from "express";
 import { createHypenatedId, isEmpty } from "../utils/helpers";
 import { MenuItemRepository, MenuItemRepositoryImpl } from "../repository/MenuItemRepository";
 import { NewMenuItemSchema } from "../schema/menu-item";
+import MenuCategoryRepository from "../repository/MenuCategoryRepository";
+import MenuCategoryRepositoryImpl from "../repository/MenuCategoryRepository";
 
 
 
 class MenuItemController {
 
-    constructor(private readonly repository: MenuItemRepository) {}
+    constructor(
+        private readonly repository: MenuItemRepository,
+        private readonly menuCategoryRepository: MenuCategoryRepository
+    ) {}
 
     getById = async (req: Request, res: Response) => {
         const result = await this.repository.getById(req.params.menuItemId);
@@ -41,8 +46,18 @@ class MenuItemController {
     create = async (req: Request, res: Response) =>{
         const payload = req.body as Omit<NewMenuItemSchema, "id">;
         const { restaurantId, menuCategoryId } = req.params;
+        
+        const existingCategory =  await this.menuCategoryRepository.getOne({ 
+            id: menuCategoryId,
+            restaurantId
+        });
 
         const id = createHypenatedId(payload.name);
+
+        if (!existingCategory) {
+            throw new Error("Invalid menu category.");
+        }
+        console.log({ existingCategory })
 
         const result = await this.repository.create({
             ...payload,
@@ -78,4 +93,7 @@ class MenuItemController {
     }
 }
 
-export const menuItemController = new MenuItemController(new MenuItemRepositoryImpl);
+export const menuItemController = new MenuItemController(
+    new MenuItemRepositoryImpl, 
+    new MenuCategoryRepositoryImpl
+);
