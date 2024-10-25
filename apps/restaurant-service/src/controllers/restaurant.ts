@@ -1,32 +1,32 @@
 import { NextFunction, Request, Response } from "express";
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, or, sql } from "drizzle-orm";
 import { v4 as uuid4 } from "uuid";
 
-import { RestaurantSchema, restaurants } from "../schema/restaurant";
-import { db, dbClient } from "../config/database";
+import { NewRestaurantSchema, RestaurantSchema, restaurants } from "../schema/restaurant";
+import { databaseClient as db } from "../config/database";
 import { isEmpty } from "../utils/helpers";
+import BaseImageService from "../services/image/BaseImageService";
+import { RestaurantRepository } from "../repository/RestaurantRepository";
+import { NotFoundError } from "../error/notfound";
+import { CategoryRepository } from "../repository/CategoryRepository";
+import BadRequestError from "../error/BadRequest";
 
+type T = keyof NewRestaurantSchema;
 
-class RestaurantController {
-    // private repository: DatabaseInterface<RestaurantSchema>;
+export default class RestaurantController {
 
-    constructor() {
-        // this.repository = new MenuItemRepository(dbClient);
-    }
+    constructor(
+        private readonly imageService: BaseImageService,
+        private readonly repository: RestaurantRepository,
+        private readonly categoryRepository: CategoryRepository
+    ) {}
 
-    async getById(req: Request, res: Response, next: NextFunction): Promise<Response<RestaurantSchema> | void> {
-        const { id: restaurantId } = req.params;
+    getOne = async (req: Request, res: Response, next: NextFunction): Promise<Response<RestaurantSchema> | void> => {    
+        const payload = req.body as Record<T, NewRestaurantSchema[T]>;
 
-        try {
-           const data = await db
-               .select()
-               .from(restaurants)
-               .where(eq(restaurants.id, restaurantId));
-    
-           return res.json({ success: true, payload: data });
-       } catch (error) {
-            return next(error)
-       }
+        // const result = await this.repository.getOne(payload);
+        
+        return res.status(200).json({ success: true, payload: null});
     }
 
     async getMany(req: Request, res: Response, next: NextFunction) {
@@ -42,62 +42,72 @@ class RestaurantController {
 
             const totalRestaurants = restaurantCount[0].count;
 
-            const paginatedRestaurants = await db.select()
+            let paginatedRestaurants = await db.select()
                 .from(restaurants)
                 .limit(limit)
                 .offset(offset)
     
             return res.status(200).json({
                 success: true,
-                payload: {
-                    restaurants: paginatedRestaurants,
-                    current: page,
-                    totalPages: Math.ceil(totalRestaurants / limit),
-                    totalRestaurants
-                }
-            })
+                restaurants: paginatedRestaurants,
+                current: page,
+                totalPages: Math.ceil(totalRestaurants / limit),
+                totalRestaurants
+            });
         } catch (error) {
             next(error);
             return;
         }
     }
 
-    async create(req: Request, res: Response, next: NextFunction) {        
-        const payload = req.body;
+    create = async (req: Request, res: Response, next: NextFunction) => {   
+        const { body: payload, file: imageFile } =  req; 
 
-        const nameExists = await db.select()
-            .from(restaurants)
-            .where(
-                and(
-                    eq(restaurants.name, payload.name), 
-                    eq(restaurants.phone, payload.phone)
-                )
-            );
-
-        if (!isEmpty(nameExists)) {
-            const error = new Error();
-            error.message = "restaurant name already exists.";
-            next(error);
-            return;
+        const existingRestaurant = await this.repository.findByNameOrPhone({ 
+            name: payload.name,
+            phone: payload.name
+        });
+     
+        if (existingRestaurant) {
+            return next(new NotFoundError(
+                "Bad Request: Existing Restaurant"
+            ));
         }
 
-        try { 
-            // upload image from request to a cdn or bucket - ImageUploadService
+        const categoryName = payload.category as string;
 
-            const data = await db
-                .insert(restaurants)
-                .values({...payload, id: uuid4()})
-                .returning({ id: restaurants.id });
+        const category = await this.categoryRepository.findOne({ name: categoryName });
 
-            // event for created restaurant event or pubsub
-            // this can serve as duplicating the restaurant db on the users 
-            // to keep of user's favourite restaurants or the other way around
-            // the other way around so the user service doesnt have duplicates of all entity it references
-            // and each service (if related) can have a duplicate of user instead
-            return res.status(201).send({success: true, payload: data});
-        } catch (error) {
-            next(error);
+        if (!category) {
+            throw new BadRequestError("No Category Selected");
         }
+
+        // upload main image from request to a cdn or bucket - ImageUploadService
+        const restaurantName = payload.name;
+        const folder = `restaurants/${restaurantName}`;
+        const savedImage = await this.imageService.save({
+            name: imageFile.originalname || imageFile.filename,
+            mimetype: imageFile.mimetype,
+            buffer: imageFile.buffer,
+            size: imageFile.size,
+            type: "main",
+            folder
+        });
+
+        const data = await this.repository.create({
+            ...payload, 
+            mainImage: savedImage, 
+            categoryId: category.id 
+        });
+
+        /** 
+         * event for created restaurant event or pubsub
+         * this can serve as duplicating the restaurant db on the users 
+         * to keep of user's favourite restaurants or the other way around
+         * the other way around so the user service doesnt have duplicates of all entity it references
+         * and each service (if related) can have a duplicate of user instead
+        */
+        return res.status(201).json({success: true, payload: data });
     }
 
     async update(req: Request, res: Response, next: NextFunction) {
@@ -134,20 +144,16 @@ class RestaurantController {
         }
     }
 
-    async delete(req: Request, res: Response) {
-        const {id: restaurantId} = req.params;
+    delete = async (req: Request, res: Response) => {
+        const { id } = req.params;
 
-        try {
-            await db.delete(restaurants)
-                .where(eq(restaurants.id, restaurantId))
-            
-            return res.status(200).json({ success: true, payload: null }); 
-        } catch (error) {
-            console.log(`DB Error: ${error}`);
-        }
+        // delete image or any other service
+        // await this.imageService
+    
+        await this.repository.deleteOne({ id });
+
+        return res.json({ success: true, payload: null });
     }
 }
-
-export const restaurantController = new RestaurantController();
 
 // code to check for existence is repeated

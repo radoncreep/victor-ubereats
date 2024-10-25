@@ -1,13 +1,15 @@
 import type { Config } from "drizzle-kit";
+import dotenv from "dotenv";
+dotenv.config();
 
 export default {
     schema: "./src/schema/*",
     driver: "pg",
     dbCredentials: {
-        user: "postgres",
-        host: "127.0.0.1",
-        port: 5432,
-        database: "restaurant"
+        user: process.env.POSTGRES_USER,
+        host: process.env.POSTGRES_HOSTNAME,
+        port: +process.env.POSTGRES_DB_PORT,
+        database: process.env.POSTGRES_DB_NAME
     },
     out: "./migrations"
 } satisfies Config;

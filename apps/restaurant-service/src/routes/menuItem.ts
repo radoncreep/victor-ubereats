@@ -1,13 +1,12 @@
 import { Router } from "express";
 
-import { MenuItemController } from "../controllers/menuItem";
 import { authorizeRole } from "../middleware/rbac/authorization";
-import { MenuItemRepository } from "../repository/MenuItemRepository";
 import { catchAsyncErrors } from "../utils/helpers";
+import { menuItemController } from "../controllers/menuItem";
 
 
-const router = Router();
-const menuItemController = new MenuItemController(new MenuItemRepository());
+const router = Router({ mergeParams: true });
+
 
 router.get("/:menuItemId", catchAsyncErrors(menuItemController.getById));
 

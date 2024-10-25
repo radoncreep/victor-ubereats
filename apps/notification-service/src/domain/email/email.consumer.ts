@@ -27,6 +27,7 @@ export class EmailQueueMessageHandler implements QueueMessageHandlerInterface {
             
         } catch (error) {
             console.log({ error });
+            throw error;
         }
     }
 
@@ -34,4 +35,6 @@ export class EmailQueueMessageHandler implements QueueMessageHandlerInterface {
         this.mailBuilders.set(builder._builderName, builder);
     }
 }
-// QueueMessage<BaseEmailPayload, EmailQueueMessageSubject>
+
+// EmailComposer base class
+// AuthEmailComposer extends EmailComposer

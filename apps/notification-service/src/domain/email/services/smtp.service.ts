@@ -16,24 +16,29 @@ export class MailjetSMTPService implements STMPService {
 
     async send(email: BuiltEmailPayload) {
         const { receipient, sender, subject, body  } = email;
+
+        try {
+            const { response } = await this.mailjet.post('send', { version: 'v3.1' })
+                .request({
+                    Messages: [{
+                        From: {
+                            Email: sender,
+                            Name: "ubereats"
+                        },
+                        To: [{
+                            Email: receipient,
+                            Name: "ubereats newbie"
+                        }],
+                        Subject: subject,
+                        // TextPart: body,
+                        HTMLPart: body
+                    }]
+                });
+            
+            return { success: response.status === 200 };
+        } catch (error) {
+            throw error;
+        }
        
-        const { response } = await this.mailjet.post('send', { version: 'v3.1' })
-            .request({
-                Messages: [{
-                    From: {
-                        Email: sender,
-                        Name: "ubereats"
-                    },
-                    To: [{
-                        Email: receipient,
-                        Name: "ubereats newbie"
-                    }],
-                    Subject: subject,
-                    // TextPart: body,
-                    HTMLPart: body
-                }]
-            });
-        
-        return { success: response.status === 200 };
     }
 }

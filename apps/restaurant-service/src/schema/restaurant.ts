@@ -1,10 +1,20 @@
-import { text, timestamp, pgTable, json, integer, uuid } from "drizzle-orm/pg-core";
+import { text, timestamp, pgTable, json, integer, uuid, pgSchema } from "drizzle-orm/pg-core";
 import { z } from "zod";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
-
-import { RestaurantAddress, RestaurantLocation, Cusine, OpeningHours } from "../entities/restaurant";
 import { relations } from "drizzle-orm";
-import { menuitems } from "./menuItem";
+
+import { RestaurantAddress, RestaurantLocation, Cuisine } from "../entities/restaurant";
+import { menuitems } from "./menu-item";
+import { categories } from "./categories";
+import { TimeAvailability } from "../types";
+import { menus } from "./menu";
+import { subMenuItemGroup } from "./sub-menu";
+
+export type DbImage = {
+  id: string;
+  name?: string;
+  url: string;
+}
 
 
 export const restaurants = pgTable("restaurants", {
@@ -14,16 +24,25 @@ export const restaurants = pgTable("restaurants", {
   address: json("address").notNull().$type<RestaurantAddress>(),
   location: json("location").default({ location: 0.0, longitude: 0.0 }).$type<RestaurantLocation>(),
   phone: text("phone").notNull().unique(),
-  cuisines: json("cusines").default([]).$type<Cusine[]>(),
-  opening_hours: json("opening_hours").default({ monday: { open: "9:00", close: "18:00"}}).$type<OpeningHours>(),
+  cuisines: json("cusines").default([]).$type<Cuisine[]>(),
+  openingHours: json("opening_hours").$type<TimeAvailability[]>()
+    .default([{ monday: { startTime: "09:00", endTime: "18:00"}}]),
   rating: integer("rating").default(0),
-  image: text("image").notNull(), 
-  createdAt: timestamp("created_at"),
-  updatedAt: timestamp("updated_at"),
+  mainImage: json("main_image").notNull(), 
+  featured_images: json("featured_images").default([]).$type<DbImage>(),
+  createdAt: timestamp("created_at").$default(() => new Date()),
+  updatedAt: timestamp("updated_at").$default(() => new Date()),
+  categoryId: uuid("category_id").notNull().references(() => categories.id) // references are typically kept on the many side
 });
 
-export const restaurantRelations = relations(restaurants, ({ many }) => ({
-  menuItems: many(menuitems)
+export const restaurantRelations = relations(restaurants, ({ many, one }) => ({
+  menuItems: many(menuitems),
+  categories: one(categories, {
+    fields: [restaurants.categoryId],
+    references: [categories.id]
+  }),
+  menus: many(menus),
+  subMenuItemGroups: many(subMenuItemGroup)
 }));
 
 export const selectRestaurantSchema = createSelectSchema(restaurants);
@@ -57,12 +76,19 @@ export const insertRestaurantSchema = createInsertSchema(restaurants, {
   }),
   phone: (schema) => schema.phone.min(10).max(11),
   cuisines: z.array(z.enum(["african", "nigerian", "italian"])),
-  opening_hours: z.object({
+  openingHours: z.object({
     open: z.string(),
     close: z.string()
   })
   // image: (schema) => schema.image.
 });
+
+export const uniqueRestaurantFields = createSelectSchema(restaurants, {
+  name: (schema) => schema.name.nonempty().trim().min(3),
+  phone: (schema) => schema.phone.min(10).max(11)
+})
+
+// export const deleteRestaurantSchema = createCheckSchema((fields) => )
 
 export type RestaurantSchema = typeof restaurants.$inferSelect;
 export type NewRestaurantSchema = typeof restaurants.$inferInsert;
